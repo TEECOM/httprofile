@@ -1,8 +1,9 @@
 module Main exposing (Model, init)
 
 import Browser
-import Html exposing (Html, a, div, h1, header, span, text)
-import Html.Attributes exposing (class, href, src)
+import Html exposing (Html, a, div, header, input, main_, span, text)
+import Html.Attributes exposing (class, href, placeholder, src, type_)
+import Html.Events exposing (onInput)
 import Svg exposing (path, svg)
 import Svg.Attributes exposing (d, viewBox)
 
@@ -28,7 +29,7 @@ view : Model -> Html Msg
 view model =
     div []
         [ Html.map never viewHeader
-        , h1 [] [ text "Hello World!!" ]
+        , viewMain model
         ]
 
 
@@ -46,6 +47,15 @@ viewHeader =
         ]
 
 
+viewMain : Model -> Html Msg
+viewMain model =
+    Html.main_
+        [ class "max-w-3xl mx-auto px-3 pt-10" ]
+        [ viewInput "https://httprofile.io" ChangedURL
+        , text "Hi!"
+        ]
+
+
 viewLogo : String -> Html Never
 viewLogo classes =
     svg
@@ -53,12 +63,23 @@ viewLogo classes =
         [ path [ d "M10 20a10 10 0 1 1 0-20 10 10 0 0 1 0 20zm-5.6-4.29a9.95 9.95 0 0 1 11.2 0 8 8 0 1 0-11.2 0zm6.12-7.64l3.02-3.02 1.41 1.41-3.02 3.02a2 2 0 1 1-1.41-1.41z" ] [] ]
 
 
+viewInput : String -> (String -> msg) -> Html msg
+viewInput p msg =
+    input
+        [ type_ "text"
+        , placeholder p
+        , class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
+        , onInput msg
+        ]
+        []
+
+
 
 -- MESSAGE
 
 
 type Msg
-    = NoOp
+    = ChangedURL String
 
 
 
