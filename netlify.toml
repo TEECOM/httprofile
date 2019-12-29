@@ -1,0 +1,9 @@
+[build]
+  publish = "dist/"
+
+  command = "yarn prod:compress"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

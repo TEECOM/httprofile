@@ -1,0 +1,57 @@
+module Main exposing (Model, init)
+
+import Browser
+import Html exposing (Html, h1, text)
+
+
+
+-- MODEL
+
+
+type alias Model =
+    {}
+
+
+init : () -> ( Model, Cmd Msg )
+init =
+    always ( {}, Cmd.none )
+
+
+
+-- VIEW
+
+
+view : Model -> Html Msg
+view model =
+    h1 [] [ text "Hello World!!" ]
+
+
+
+-- MESSAGE
+
+
+type Msg
+    = NoOp
+
+
+
+-- UPDATE
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    ( model, Cmd.none )
+
+
+
+-- MAIN
+
+
+main : Program () Model Msg
+main =
+    Browser.element
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = always Sub.none
+        }
