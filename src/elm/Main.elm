@@ -2,6 +2,7 @@ module Main exposing (Model, init)
 
 import Browser
 import Html exposing (Html, h1, text)
+import Html.Attributes exposing (class)
 
 
 
@@ -23,7 +24,7 @@ init =
 
 view : Model -> Html Msg
 view model =
-    h1 [] [ text "Hello World!!" ]
+    h1 [ class "text-2xl font-bold" ] [ text "Hello World!!" ]
 
 
 
