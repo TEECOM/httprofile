@@ -15,12 +15,12 @@ import Verbs
 
 
 type alias Model =
-    {}
+    { verb : Verbs.Verb, url : String }
 
 
 init : () -> ( Model, Cmd Msg )
 init =
-    always ( {}, Cmd.none )
+    always ( { verb = Verbs.Get, url = "" }, Cmd.none )
 
 
 
@@ -119,7 +119,12 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        ChangedVerb verb ->
+            ( { model | verb = verb }, Cmd.none )
+
+        ChangedURL url ->
+            ( { model | url = url }, Cmd.none )
 
 
 
