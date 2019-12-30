@@ -64,38 +64,38 @@ toString verb =
             "TRACE"
 
 
-fromString : String -> Maybe Verb
+fromString : String -> Result String Verb
 fromString str =
     case str of
         "GET" ->
-            Just Get
+            Ok Get
 
         "POST" ->
-            Just Post
+            Ok Post
 
         "PUT" ->
-            Just Put
+            Ok Put
 
         "PATCH" ->
-            Just Patch
+            Ok Patch
 
         "DELETE" ->
-            Just Delete
+            Ok Delete
 
         "HEAD" ->
-            Just Head
+            Ok Head
 
         "CONNECT" ->
-            Just Connect
+            Ok Connect
 
         "OPTIONS" ->
-            Just Options
+            Ok Options
 
         "TRACE" ->
-            Just Trace
+            Ok Trace
 
         _ ->
-            Nothing
+            Err ("Unknown HTTP verb \"" ++ str ++ "\".")
 
 
 
@@ -115,8 +115,8 @@ targetValueDecoder =
 decoderFromString : String -> Decoder Verb
 decoderFromString str =
     case fromString str of
-        Just verb ->
+        Ok verb ->
             Decode.succeed verb
 
-        Nothing ->
-            Decode.fail <| "Unknown HTTP verb \"" ++ str ++ "\"."
+        Err error ->
+            Decode.fail error

@@ -82,52 +82,52 @@ fromString =
             \() ->
                 "GET"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Get)
+                    |> Expect.equal (Ok Get)
         , test "returns Post for 'POST'" <|
             \() ->
                 "POST"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Post)
+                    |> Expect.equal (Ok Post)
         , test "returns Put for 'PUT'" <|
             \() ->
                 "PUT"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Put)
+                    |> Expect.equal (Ok Put)
         , test "returns Patch for 'PATCH'" <|
             \() ->
                 "PATCH"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Patch)
+                    |> Expect.equal (Ok Patch)
         , test "returns Delete for 'DELETE'" <|
             \() ->
                 "DELETE"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Delete)
+                    |> Expect.equal (Ok Delete)
         , test "returns Head for 'HEAD'" <|
             \() ->
                 "HEAD"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Head)
+                    |> Expect.equal (Ok Head)
         , test "returns Connect for 'CONNECT'" <|
             \() ->
                 "CONNECT"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Connect)
+                    |> Expect.equal (Ok Connect)
         , test "returns Options for 'OPTIONS'" <|
             \() ->
                 "OPTIONS"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Options)
+                    |> Expect.equal (Ok Options)
         , test "returns Trace for 'TRACE'" <|
             \() ->
                 "TRACE"
                     |> Verbs.fromString
-                    |> Expect.equal (Just Trace)
+                    |> Expect.equal (Ok Trace)
         , fuzz string "returns Nothing for unknown verbs" <|
             \unknownVerb ->
                 unknownVerb
                     |> Verbs.fromString
-                    |> Expect.equal Nothing
+                    |> Expect.equal (Err <| "Unknown HTTP verb \"" ++ unknownVerb ++ "\".")
         ]
 
 
