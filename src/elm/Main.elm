@@ -1,11 +1,13 @@
 module Main exposing (Model, init)
 
 import Browser
+import Header
 import Html exposing (Html, a, b, div, header, input, main_, option, p, select, span, text)
 import Html.Attributes exposing (class, href, placeholder, src, type_, value)
 import Html.Events exposing (on, onInput)
 import Http
 import Json.Decode as Decode
+import Response exposing (Response)
 import Svg exposing (circle, path, svg)
 import Svg.Attributes exposing (cx, cy, d, r, viewBox)
 import Verbs
@@ -22,7 +24,8 @@ type Header
 type alias Model =
     { verb : Verbs.Verb
     , url : String
-    , header : Header
+    , header : Header.Header
+    , response : Response
     }
 
 
@@ -31,7 +34,8 @@ init =
     always
         ( { verb = Verbs.Get
           , url = ""
-          , header = Header "" ""
+          , header = Header.Header "" ""
+          , response = Response "HTTP/1.1" "200 OK" (Header.Header "" "") "bodytext" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms"
           }
         , Cmd.none
         )
@@ -91,39 +95,27 @@ viewMain model =
         , div []
             [ div [ class "my-2" ]
                 [ p []
-                    [ span [ class "text-yellow-400" ] [ text "HTTP" ]
-                    , span [] [ text "/" ]
-                    , span [ class "text-blue-500" ] [ text "1.1 200 OK" ]
+                    [ span [ class "text-yellow-400" ] [ text model.response.protocol ]
+                    , span [ class "text-blue-500" ] [ text model.response.status ]
                     ]
                 , p []
-                    [ span [] [ text "Server: " ]
-                    , span [ class "text-blue-500" ] [ text "nginx/1.6.3" ]
-                    ]
-                , p []
-                    [ span [] [ text "Date: " ]
-                    , span [ class "text-blue-500" ] [ text "Fri, 02 Sep 2016 11:15:57 GMT" ]
-                    ]
-                , p [] [ text "..." ]
-                ]
-            , div [ class "my-2" ]
-                [ p []
-                    [ span [ class "text-yellow-400" ] [ text "Body " ]
-                    , span [] [ text "stored in: tmp/tmplol" ]
+                    [ span [] [ text "Body: " ]
+                    , span [ class "text-blue-500" ] [ text model.response.body ]
                     ]
                 ]
-            , div [ class "text-5xl text-green-500" ] [ text "756ms" ]
+            , div [ class "text-5xl text-green-500" ] [ text model.response.totalRequestTime ]
             , div [ class "my-2 flex" ]
-                [ viewStep "DNS Lookup" "150ms"
-                , viewStep "TCP Connection" "119ms"
-                , viewStep "SSL Handshake" "356ms"
-                , viewStep "Server Processing" "131ms"
-                , viewStep "Content Transfer" "0ms"
+                [ viewStep "DNS Lookup" model.response.dnsDuration
+                , viewStep "TCP Connection" model.response.tcpConnectionDuration
+                , viewStep "SSL Handshake" model.response.tlsHandshakeDuration
+                , viewStep "Server Processing" model.response.serverProcessingDuration
+                , viewStep "Content Transfer" model.response.contentTransferDuration
                 ]
             , div [ class "my-2 mx-auto w-1/2 flex" ]
-                [ viewStep "namelookup" "150ms"
-                , viewStep "connect" "269ms"
-                , viewStep "pretransfer" "625ms"
-                , viewStep "starttransfer" "756ms"
+                [ viewStep "namelookup" model.response.timeToNameLookup
+                , viewStep "connect" model.response.timeToConnect
+                , viewStep "pretransfer" model.response.timeToPreTransfer
+                , viewStep "starttransfer" model.response.timeToStartTransfer
                 ]
             ]
         ]
@@ -227,17 +219,17 @@ update msg model =
 
         ChangedHeaderKey key ->
             let
-                (Header _ value) =
+                (Header.Header _ value) =
                     model.header
             in
-            ( { model | header = Header key value }, Cmd.none )
+            ( { model | header = Header.Header key value }, Cmd.none )
 
         ChangedHeaderValue value ->
             let
-                (Header key _) =
+                (Header.Header key _) =
                     model.header
             in
-            ( { model | header = Header key value }, Cmd.none )
+            ( { model | header = Header.Header key value }, Cmd.none )
 
 
 
