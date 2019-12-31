@@ -1,9 +1,10 @@
 module Main exposing (Model, init)
 
 import Browser
+import Header exposing (Header)
 import Html exposing (Html, a, div, header, input, main_, option, select, span, text)
 import Html.Attributes exposing (class, href, placeholder, src, type_, value)
-import Html.Events exposing (on, onInput)
+import Html.Events exposing (on, onClick, onInput)
 import Icon
 import Json.Decode as Decode
 import Verb
@@ -14,12 +15,21 @@ import Verb
 
 
 type alias Model =
-    { verb : Verb.Verb, url : String }
+    { verb : Verb.Verb
+    , url : String
+    , headers : List Header
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init =
-    always ( { verb = Verb.Get, url = "" }, Cmd.none )
+    always
+        ( { verb = Verb.Get
+          , url = ""
+          , headers = [ Header.empty ]
+          }
+        , Cmd.none
+        )
 
 
 
@@ -51,7 +61,7 @@ viewHeader =
 viewMain : Model -> Html Msg
 viewMain model =
     Html.main_
-        [ class "max-w-3xl mx-auto px-3 pt-10" ]
+        [ class "max-w-3xl mx-auto px-3 pt-10 py-2" ]
         [ div [ class "flex items-center" ]
             [ viewVerbSelect
             , input
@@ -62,6 +72,7 @@ viewMain model =
                 ]
                 []
             ]
+        , div [ class "py-2" ] (List.indexedMap viewHeaderInput model.headers)
         , text "Hi!"
         ]
 
@@ -84,6 +95,29 @@ viewVerbOption v =
     option [ value <| Verb.toString v ] [ text <| Verb.toString v ]
 
 
+viewHeaderInput : Int -> Header -> Html Msg
+viewHeaderInput idx header =
+    div [ class "flex items-center my-2" ]
+        [ input
+            [ type_ "text"
+            , placeholder "Content-Type"
+            , class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-2/5 appearance-none focus:outline-none focus:border-gray-700"
+            , onInput <| ChangedHeaderKey idx
+            , value <| Header.key header
+            ]
+            []
+        , input
+            [ type_ "text"
+            , placeholder "application/json"
+            , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
+            , onInput <| ChangedHeaderValue idx
+            , value <| Header.value header
+            ]
+            []
+        , a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
+        ]
+
+
 
 -- MESSAGE
 
@@ -91,6 +125,9 @@ viewVerbOption v =
 type Msg
     = ChangedURL String
     | ChangedVerb Verb.Verb
+    | ChangedHeaderKey Int String
+    | ChangedHeaderValue Int String
+    | ClickedAddHeader
 
 
 
@@ -105,6 +142,35 @@ update msg model =
 
         ChangedURL url ->
             ( { model | url = url }, Cmd.none )
+
+        ChangedHeaderKey idx key ->
+            let
+                updateKey =
+                    Header.mapKey (always key)
+            in
+            ( { model | headers = mapOnly idx updateKey model.headers }, Cmd.none )
+
+        ChangedHeaderValue idx value ->
+            let
+                updateValue =
+                    Header.mapValue (always value)
+            in
+            ( { model | headers = mapOnly idx updateValue model.headers }, Cmd.none )
+
+        ClickedAddHeader ->
+            ( { model | headers = model.headers ++ [ Header.empty ] }, Cmd.none )
+
+
+mapOnly : Int -> (a -> a) -> List a -> List a
+mapOnly index transform =
+    List.indexedMap
+        (\idx val ->
+            if index == idx then
+                transform val
+
+            else
+                val
+        )
 
 
 
