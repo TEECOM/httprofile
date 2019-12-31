@@ -2,12 +2,12 @@ module Main exposing (Model, init)
 
 import Browser
 import Header
-import Html exposing (Html, a, b, div, header, input, main_, option, p, select, span, text)
+import Html exposing (Html, a, b, button, div, header, input, main_, option, p, select, span, text)
 import Html.Attributes exposing (class, href, placeholder, src, type_, value)
-import Html.Events exposing (on, onInput)
+import Html.Events exposing (on, onClick, onInput)
 import Http
 import Json.Decode as Decode
-import Response exposing (Response)
+import Responses
 import Svg exposing (circle, path, svg)
 import Svg.Attributes exposing (cx, cy, d, r, viewBox)
 import Verbs
@@ -25,7 +25,7 @@ type alias Model =
     { verb : Verbs.Verb
     , url : String
     , header : Header.Header
-    , response : Response
+    , response : Responses.Response
     }
 
 
@@ -35,7 +35,7 @@ init =
         ( { verb = Verbs.Get
           , url = ""
           , header = Header.Header "" ""
-          , response = Response "HTTP/1.1" "200 OK" (Header.Header "" "") "bodytext" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms" "50ms"
+          , response = Responses.EmptyResponse
           }
         , Cmd.none
         )
@@ -92,33 +92,44 @@ viewMain model =
                 []
             , Html.map never (viewPlusButton "fill-current text-gray-600 h-8 ml-3 hover:text-gray-500")
             ]
-        , div []
-            [ div [ class "my-2" ]
-                [ p []
-                    [ span [ class "text-yellow-400" ] [ text model.response.protocol ]
-                    , span [ class "text-blue-500" ] [ text model.response.status ]
-                    ]
-                , p []
-                    [ span [] [ text "Body: " ]
-                    , span [ class "text-blue-500" ] [ text model.response.body ]
-                    ]
-                ]
-            , div [ class "text-5xl text-green-500" ] [ text model.response.totalRequestTime ]
-            , div [ class "my-2 flex" ]
-                [ viewStep "DNS Lookup" model.response.dnsDuration
-                , viewStep "TCP Connection" model.response.tcpConnectionDuration
-                , viewStep "SSL Handshake" model.response.tlsHandshakeDuration
-                , viewStep "Server Processing" model.response.serverProcessingDuration
-                , viewStep "Content Transfer" model.response.contentTransferDuration
-                ]
-            , div [ class "my-2 mx-auto w-1/2 flex" ]
-                [ viewStep "namelookup" model.response.timeToNameLookup
-                , viewStep "connect" model.response.timeToConnect
-                , viewStep "pretransfer" model.response.timeToPreTransfer
-                , viewStep "starttransfer" model.response.timeToStartTransfer
-                ]
-            ]
+        , button [ onClick DisplayResponse, class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 hover:bg-gray-700" ] [ text "Submit" ]
+        , viewResponse model.response
         ]
+
+
+viewResponse : Responses.Response -> Html Msg
+viewResponse response =
+    case response of
+        Responses.PresentResponse responseStuff ->
+            div []
+                [ div [ class "my-2" ]
+                    [ p []
+                        [ span [ class "text-yellow-400" ] [ text responseStuff.protocol ]
+                        , span [ class "text-blue-500" ] [ text responseStuff.status ]
+                        ]
+                    , p []
+                        [ span [] [ text "Body: " ]
+                        , span [ class "text-blue-500" ] [ text responseStuff.body ]
+                        ]
+                    ]
+                , div [ class "text-5xl text-green-500" ] [ text responseStuff.totalRequestTime ]
+                , div [ class "my-2 flex" ]
+                    [ viewStep "DNS Lookup" responseStuff.dnsDuration
+                    , viewStep "TCP Connection" responseStuff.tcpConnectionDuration
+                    , viewStep "SSL Handshake" responseStuff.tlsHandshakeDuration
+                    , viewStep "Server Processing" responseStuff.serverProcessingDuration
+                    , viewStep "Content Transfer" responseStuff.contentTransferDuration
+                    ]
+                , div [ class "my-2 mx-auto w-1/2 flex" ]
+                    [ viewStep "namelookup" responseStuff.timeToNameLookup
+                    , viewStep "connect" responseStuff.timeToConnect
+                    , viewStep "pretransfer" responseStuff.timeToPreTransfer
+                    , viewStep "starttransfer" responseStuff.timeToStartTransfer
+                    ]
+                ]
+
+        Responses.EmptyResponse ->
+            div [] []
 
 
 viewStep : String -> String -> Html Msg
@@ -202,6 +213,7 @@ type Msg
     | ChangedVerb Verbs.Verb
     | ChangedHeaderKey String
     | ChangedHeaderValue String
+    | DisplayResponse
 
 
 
@@ -230,6 +242,29 @@ update msg model =
                     model.header
             in
             ( { model | header = Header.Header key value }, Cmd.none )
+
+        DisplayResponse ->
+            ( { model
+                | response =
+                    Responses.PresentResponse
+                        { protocol = "HTTP/1.1"
+                        , status = "200 OK"
+                        , headers = Header.Header "" ""
+                        , body = "bodytext"
+                        , dnsDuration = "150ms"
+                        , tcpConnectionDuration = "119ms"
+                        , tlsHandshakeDuration = "356ms"
+                        , serverProcessingDuration = "131ms"
+                        , contentTransferDuration = "0ms"
+                        , timeToNameLookup = "150ms"
+                        , timeToConnect = "269ms"
+                        , timeToPreTransfer = "625ms"
+                        , timeToStartTransfer = "756ms"
+                        , totalRequestTime = "756ms"
+                        }
+              }
+            , Cmd.none
+            )
 
 
 
