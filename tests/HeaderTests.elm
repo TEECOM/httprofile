@@ -3,6 +3,7 @@ module HeaderTests exposing (suite)
 import Expect
 import Fuzz exposing (string)
 import Header exposing (Header(..))
+import Http
 import Test exposing (..)
 
 

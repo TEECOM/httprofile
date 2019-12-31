@@ -1,4 +1,8 @@
-module Header exposing (Header, header, key, value)
+module Header exposing (Header, empty, header, key, toHttp, value)
+
+import Http
+
+
 
 -- TYPES
 
@@ -24,6 +28,11 @@ header k v =
     Header k v
 
 
+empty : Header
+empty =
+    Header "" ""
+
+
 
 -- INFO
 
@@ -36,3 +45,12 @@ key (Header k _) =
 value : Header -> Value
 value (Header _ v) =
     v
+
+
+
+-- CONVERSION
+
+
+toHttp : Header -> Http.Header
+toHttp (Header k v) =
+    Http.header k v
