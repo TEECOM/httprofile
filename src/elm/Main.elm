@@ -103,13 +103,15 @@ viewMain model =
                     [ span [] [ text "Date: " ]
                     , span [ class "text-blue-500" ] [ text "Fri, 02 Sep 2016 11:15:57 GMT" ]
                     ]
+                , p [] [ text "..." ]
                 ]
             , div [ class "my-2" ]
                 [ p []
                     [ span [ class "text-yellow-400" ] [ text "Body " ]
-                    , span [] [ text "stored in: somewhere" ]
+                    , span [] [ text "stored in: tmp/tmplol" ]
                     ]
                 ]
+            , div [ class "text-5xl text-green-500" ] [ text "756ms" ]
             , div [ class "my-2 flex" ]
                 [ viewStep "DNS Lookup" "150ms"
                 , viewStep "TCP Connection" "119ms"
@@ -117,13 +119,19 @@ viewMain model =
                 , viewStep "Server Processing" "131ms"
                 , viewStep "Content Transfer" "0ms"
                 ]
+            , div [ class "my-2 mx-auto w-1/2 flex" ]
+                [ viewStep "namelookup" "150ms"
+                , viewStep "connect" "269ms"
+                , viewStep "pretransfer" "625ms"
+                , viewStep "starttransfer" "756ms"
+                ]
             ]
         ]
 
 
 viewStep : String -> String -> Html Msg
 viewStep step duration =
-    div [ class "m-3 px-3 py-3 bg-gray-600 text-sm text-center" ]
+    div [ class "m-2 p-2 bg-gray-600 text-sm text-center first:ml-0 last:mr-0 flex-1" ]
         [ p [] [ text step ]
         , b [ class (viewStepColor (String.dropRight 2 duration)) ] [ text duration ]
         ]
