@@ -1,4 +1,4 @@
-module Header exposing (Header, empty, header, key, toHttp, value)
+module Header exposing (Header, empty, header, key, toHttp, updateKey, updateValue, value)
 
 import Http
 
@@ -48,9 +48,19 @@ value (Header _ v) =
 
 
 
--- CONVERSION
+-- TRANSFORMS
 
 
 toHttp : Header -> Http.Header
 toHttp (Header k v) =
     Http.header k v
+
+
+updateKey : Key -> Header -> Header
+updateKey k (Header _ v) =
+    Header k v
+
+
+updateValue : Value -> Header -> Header
+updateValue v (Header k _) =
+    Header k v
