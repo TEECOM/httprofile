@@ -1,4 +1,4 @@
-module Header exposing (Header, decoder, empty, header, key, toHttp, updateKey, updateValue, value)
+module Header exposing (Header, decoder, empty, header, key, mapKey, mapValue, toHttp, value)
 
 import Http
 import Json.Decode as Decode exposing (Decoder)
@@ -62,14 +62,14 @@ toHttp (Header k v) =
     Http.header k v
 
 
-updateKey : Key -> Header -> Header
-updateKey k (Header _ v) =
-    Header k v
+mapKey : (Key -> Key) -> Header -> Header
+mapKey transform (Header k v) =
+    Header (transform k) v
 
 
-updateValue : Value -> Header -> Header
-updateValue v (Header k _) =
-    Header k v
+mapValue : (Value -> Value) -> Header -> Header
+mapValue transform (Header k v) =
+    Header k (transform v)
 
 
 

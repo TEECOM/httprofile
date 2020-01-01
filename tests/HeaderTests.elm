@@ -11,7 +11,7 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "The Header module"
-        [ key, value, updateKey, updateValue, decoder ]
+        [ key, value, mapKey, mapValue, decoder ]
 
 
 key : Test
@@ -36,37 +36,37 @@ value =
         ]
 
 
-updateKey : Test
-updateKey =
-    describe "Header.updateKey"
+mapKey : Test
+mapKey =
+    describe "Header.mapKey"
         [ fuzz string "updates the Header's key" <|
             \headerKey ->
                 Header.empty
-                    |> Header.updateKey headerKey
+                    |> Header.mapKey (always headerKey)
                     |> Header.key
                     |> Expect.equal headerKey
         , fuzz string "doesn't change the Header's value" <|
             \headerKey ->
                 Header.empty
-                    |> Header.updateKey headerKey
+                    |> Header.mapKey (always headerKey)
                     |> Header.value
                     |> Expect.equal ""
         ]
 
 
-updateValue : Test
-updateValue =
-    describe "Header.updateValue"
+mapValue : Test
+mapValue =
+    describe "Header.mapValue"
         [ fuzz string "updates the Header's value" <|
             \headerValue ->
                 Header.empty
-                    |> Header.updateValue headerValue
+                    |> Header.mapValue (always headerValue)
                     |> Header.value
                     |> Expect.equal headerValue
         , fuzz string "doesn't change the Header's key" <|
             \headerValue ->
                 Header.empty
-                    |> Header.updateValue headerValue
+                    |> Header.mapValue (always headerValue)
                     |> Header.key
                     |> Expect.equal ""
         ]
