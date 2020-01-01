@@ -1,7 +1,8 @@
-module Header exposing (Header, decoder, empty, header, key, mapKey, mapValue, toHttp, value)
+module Header exposing (Header, decoder, empty, encode, header, key, mapKey, mapValue, toHttp, value)
 
 import Http
 import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode
 
 
 
@@ -80,3 +81,12 @@ decoder : Decoder (List Header)
 decoder =
     Decode.map (List.map fromPair)
         (Decode.keyValuePairs Decode.string)
+
+
+encode : List Header -> Encode.Value
+encode =
+    let
+        toPair (Header k v) =
+            ( k, Encode.string v )
+    in
+    List.map toPair >> Encode.object

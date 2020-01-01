@@ -5,13 +5,14 @@ import Fuzz exposing (string)
 import Header exposing (Header(..))
 import Http
 import Json.Decode exposing (decodeString)
+import Json.Encode as Encode
 import Test exposing (..)
 
 
 suite : Test
 suite =
     describe "The Header module"
-        [ key, value, mapKey, mapValue, decoder ]
+        [ key, value, mapKey, mapValue, decoder, encode ]
 
 
 key : Test
@@ -97,4 +98,32 @@ decoder =
                             , Header.header "Content-Type" "application/json; charset=utf-8"
                             ]
                         )
+        ]
+
+
+encode : Test
+encode =
+    describe "Header.encode"
+        [ test "can encode empty headers" <|
+            \() ->
+                []
+                    |> Header.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "{}"
+        , test "can encode single headers" <|
+            \() ->
+                [ Header.header "Key" "Value" ]
+                    |> Header.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "{\"Key\":\"Value\"}"
+        , test "can encode a real-world set of headers" <|
+            \() ->
+                [ Header.header "Accept" "application/json; charset=utf-8"
+                , Header.header "Access-Control-Allow-Origin" "*"
+                , Header.header "Content-Length" "42"
+                , Header.header "Content-Type" "application/json; charset=utf-8"
+                ]
+                    |> Header.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "{\"Accept\":\"application/json; charset=utf-8\",\"Access-Control-Allow-Origin\":\"*\",\"Content-Length\":\"42\",\"Content-Type\":\"application/json; charset=utf-8\"}"
         ]
