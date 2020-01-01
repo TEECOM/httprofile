@@ -3,6 +3,7 @@ module VerbsTests exposing (suite)
 import Expect
 import Fuzz exposing (string)
 import Json.Decode exposing (decodeString, errorToString)
+import Json.Encode as Encode
 import Test exposing (..)
 import Verbs exposing (Verb(..))
 
@@ -10,7 +11,7 @@ import Verbs exposing (Verb(..))
 suite : Test
 suite =
     describe "The Verbs module"
-        [ all, toString, fromString, decoder, targetValueDecoder ]
+        [ all, toString, fromString, decoder, targetValueDecoder, encode ]
 
 
 all : Test
@@ -240,4 +241,64 @@ targetValueDecoder =
                 ("{\"target\":{\"value\":\"" ++ str ++ "\"}}")
                     |> decodeString Verbs.targetValueDecoder
                     |> Expect.err
+        ]
+
+
+encode : Test
+encode =
+    describe "Verbs.encode"
+        [ test "can encode Get" <|
+            \() ->
+                Get
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"GET\""
+        , test "can encode Post" <|
+            \() ->
+                Post
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"POST\""
+        , test "can encode Put" <|
+            \() ->
+                Put
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"PUT\""
+        , test "can encode Patch" <|
+            \() ->
+                Patch
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"PATCH\""
+        , test "can encode Delete" <|
+            \() ->
+                Delete
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"DELETE\""
+        , test "can encode Head" <|
+            \() ->
+                Head
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"HEAD\""
+        , test "can encode Connect" <|
+            \() ->
+                Connect
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"CONNECT\""
+        , test "can encode Options" <|
+            \() ->
+                Options
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"OPTIONS\""
+        , test "can encode Trace" <|
+            \() ->
+                Trace
+                    |> Verbs.encode
+                    |> Encode.encode 0
+                    |> Expect.equal "\"TRACE\""
         ]

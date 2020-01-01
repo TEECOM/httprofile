@@ -1,7 +1,8 @@
-module Verbs exposing (Verb(..), all, decoder, fromString, targetValueDecoder, toString)
+module Verbs exposing (Verb(..), all, decoder, encode, fromString, targetValueDecoder, toString)
 
 import Html.Events exposing (targetValue)
 import Json.Decode as Decode exposing (Decoder)
+import Json.Encode as Encode
 
 
 
@@ -120,3 +121,8 @@ decoderFromString str =
 
         Err error ->
             Decode.fail error
+
+
+encode : Verb -> Encode.Value
+encode =
+    toString >> Encode.string
