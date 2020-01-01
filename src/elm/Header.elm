@@ -1,6 +1,7 @@
-module Header exposing (Header, empty, header, key, toHttp, updateKey, updateValue, value)
+module Header exposing (Header, decoder, empty, header, key, toHttp, updateKey, updateValue, value)
 
 import Http
+import Json.Decode as Decode exposing (Decoder)
 
 
 
@@ -31,6 +32,11 @@ header k v =
 empty : Header
 empty =
     Header "" ""
+
+
+fromPair : ( Key, Value ) -> Header
+fromPair ( k, v ) =
+    Header k v
 
 
 
@@ -64,3 +70,13 @@ updateKey k (Header _ v) =
 updateValue : Value -> Header -> Header
 updateValue v (Header k _) =
     Header k v
+
+
+
+-- SERIALIZATION
+
+
+decoder : Decoder (List Header)
+decoder =
+    Decode.map (List.map fromPair)
+        (Decode.keyValuePairs Decode.string)
