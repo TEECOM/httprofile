@@ -7,6 +7,7 @@ import Html.Attributes exposing (class, href, placeholder, src, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Icon
 import Json.Decode as Decode
+import List.Extra exposing (mapOnly, positionedMap, removeAt)
 import Verb
 
 
@@ -72,7 +73,7 @@ viewMain model =
                 ]
                 []
             ]
-        , div [ class "py-2" ] (List.indexedMap viewHeaderInput model.headers)
+        , div [ class "py-2" ] (positionedMap viewHeaderInput model.headers)
         , text "Hi!"
         ]
 
@@ -95,8 +96,16 @@ viewVerbOption v =
     option [ value <| Verb.toString v ] [ text <| Verb.toString v ]
 
 
-viewHeaderInput : Int -> Header -> Html Msg
-viewHeaderInput idx header =
+viewHeaderInput : List.Extra.Position -> Header -> Html Msg
+viewHeaderInput (List.Extra.Position idx lastIdx) header =
+    let
+        action =
+            if idx == lastIdx then
+                a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
+
+            else
+                a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
+    in
     div [ class "flex items-center my-2" ]
         [ input
             [ type_ "text"
@@ -114,7 +123,7 @@ viewHeaderInput idx header =
             , value <| Header.value header
             ]
             []
-        , a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
+        , action
         ]
 
 
@@ -127,6 +136,7 @@ type Msg
     | ChangedVerb Verb.Verb
     | ChangedHeaderKey Int String
     | ChangedHeaderValue Int String
+    | ClickedRemoveHeader Int
     | ClickedAddHeader
 
 
@@ -157,20 +167,11 @@ update msg model =
             in
             ( { model | headers = mapOnly idx updateValue model.headers }, Cmd.none )
 
+        ClickedRemoveHeader idx ->
+            ( { model | headers = removeAt idx model.headers }, Cmd.none )
+
         ClickedAddHeader ->
             ( { model | headers = model.headers ++ [ Header.empty ] }, Cmd.none )
-
-
-mapOnly : Int -> (a -> a) -> List a -> List a
-mapOnly index transform =
-    List.indexedMap
-        (\idx val ->
-            if index == idx then
-                transform val
-
-            else
-                val
-        )
 
 
 
