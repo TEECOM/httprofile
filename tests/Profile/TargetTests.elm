@@ -5,7 +5,7 @@ import Header
 import Json.Encode as Encode
 import Profile.Target
 import Test exposing (..)
-import Verbs
+import Verb
 
 
 suite : Test
@@ -19,7 +19,7 @@ encode =
     describe "Profile.Target.encode"
         [ test "can encode a minimal Target" <|
             \() ->
-                { verb = Verbs.Get
+                { verb = Verb.Get
                 , url = "http://test.com"
                 , headers = []
                 , body = ""
@@ -29,7 +29,7 @@ encode =
                     |> Expect.equal "{\"method\":\"GET\",\"url\":\"http://test.com\",\"headers\":{},\"body\":\"\"}"
         , test "can encode a more realistic Target" <|
             \() ->
-                { verb = Verbs.Post
+                { verb = Verb.Post
                 , url = "http://test.com"
                 , headers = [ Header.header "Content-Type" "application/json" ]
                 , body = "{\"message\":\"Hello World!\"}"

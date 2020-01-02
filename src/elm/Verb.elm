@@ -1,4 +1,4 @@
-module Verbs exposing (Verb(..), all, decoder, encode, fromString, targetValueDecoder, toString)
+module Verb exposing (Verb(..), all, decoder, encode, fromString, targetValueDecoder, toString)
 
 import Html.Events exposing (targetValue)
 import Json.Decode as Decode exposing (Decoder)

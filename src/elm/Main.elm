@@ -6,7 +6,7 @@ import Html.Attributes exposing (class, href, placeholder, src, type_, value)
 import Html.Events exposing (on, onInput)
 import Icon
 import Json.Decode as Decode
-import Verbs
+import Verb
 
 
 
@@ -14,12 +14,12 @@ import Verbs
 
 
 type alias Model =
-    { verb : Verbs.Verb, url : String }
+    { verb : Verb.Verb, url : String }
 
 
 init : () -> ( Model, Cmd Msg )
 init =
-    always ( { verb = Verbs.Get, url = "" }, Cmd.none )
+    always ( { verb = Verb.Get, url = "" }, Cmd.none )
 
 
 
@@ -65,17 +65,17 @@ viewVerbSelect =
     div [ class "inline-block relative" ]
         [ select
             [ class "bg-gray-800 border-2 border-gray-700 px-4 py-3 pr-8 rounded block appearance-none focus:outline-none focus:border-gray-600"
-            , on "change" (Decode.map ChangedVerb Verbs.targetValueDecoder)
+            , on "change" (Decode.map ChangedVerb Verb.targetValueDecoder)
             ]
-            (List.map viewVerbOption Verbs.all)
+            (List.map viewVerbOption Verb.all)
         , div [ class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600" ]
             [ Html.map never Icon.downCarrot ]
         ]
 
 
-viewVerbOption : Verbs.Verb -> Html msg
+viewVerbOption : Verb.Verb -> Html msg
 viewVerbOption v =
-    option [ value <| Verbs.toString v ] [ text <| Verbs.toString v ]
+    option [ value <| Verb.toString v ] [ text <| Verb.toString v ]
 
 
 viewInput : String -> (String -> msg) -> Html msg
@@ -95,7 +95,7 @@ viewInput p msg =
 
 type Msg
     = ChangedURL String
-    | ChangedVerb Verbs.Verb
+    | ChangedVerb Verb.Verb
 
 
 
