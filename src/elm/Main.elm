@@ -5,9 +5,12 @@ import Header exposing (Header)
 import Html exposing (Html, a, button, div, header, input, main_, option, select, span, text, textarea)
 import Html.Attributes exposing (class, href, placeholder, type_, value)
 import Html.Events exposing (on, onClick, onInput)
+import Http
 import Icon
 import Json.Decode as Decode
 import List.Extra exposing (mapOnly, positionedMap, removeAt)
+import Profile
+import Profile.Report as Report
 import Verb
 
 
@@ -15,11 +18,19 @@ import Verb
 -- MODEL
 
 
+type Status
+    = NotRequested
+    | Loading
+    | Loaded Report.Report
+    | Failed Http.Error
+
+
 type alias Model =
     { verb : Verb.Verb
     , url : String
     , headers : List Header
     , body : String
+    , report : Status
     }
 
 
@@ -30,6 +41,7 @@ init =
           , url = ""
           , headers = [ Header.empty ]
           , body = ""
+          , report = NotRequested
           }
         , Cmd.none
         )
@@ -156,6 +168,7 @@ type Msg
     | ClickedAddHeader
     | ChangedBody String
     | ClickedRunButton
+    | CompletedProfile (Result Http.Error Report.Report)
 
 
 
@@ -195,7 +208,20 @@ update msg model =
             ( { model | body = body }, Cmd.none )
 
         ClickedRunButton ->
-            ( model, Cmd.none )
+            ( { model | report = Loading }
+            , Profile.run CompletedProfile
+                { verb = model.verb
+                , url = model.url
+                , headers = model.headers
+                , body = model.body
+                }
+            )
+
+        CompletedProfile (Err error) ->
+            ( { model | report = Failed error }, Cmd.none )
+
+        CompletedProfile (Ok report) ->
+            ( { model | report = Loaded report }, Cmd.none )
 
 
 
