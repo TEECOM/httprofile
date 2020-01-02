@@ -2,8 +2,8 @@ module Main exposing (Model, init)
 
 import Browser
 import Header exposing (Header)
-import Html exposing (Html, a, div, header, input, main_, option, select, span, text)
-import Html.Attributes exposing (class, href, placeholder, src, type_, value)
+import Html exposing (Html, a, div, header, input, main_, option, select, span, text, textarea)
+import Html.Attributes exposing (class, href, placeholder, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Icon
 import Json.Decode as Decode
@@ -19,6 +19,7 @@ type alias Model =
     { verb : Verb.Verb
     , url : String
     , headers : List Header
+    , body : String
     }
 
 
@@ -28,6 +29,7 @@ init =
         ( { verb = Verb.Get
           , url = ""
           , headers = [ Header.empty ]
+          , body = ""
           }
         , Cmd.none
         )
@@ -74,7 +76,14 @@ viewMain model =
                 []
             ]
         , div [ class "py-2" ] (positionedMap viewHeaderInput model.headers)
-        , text "Hi!"
+        , div [ class "py-2" ]
+            [ textarea
+                [ placeholder "{ \"request\": \"body\" }"
+                , class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
+                , onInput ChangedBody
+                ]
+                []
+            ]
         ]
 
 
@@ -138,6 +147,7 @@ type Msg
     | ChangedHeaderValue Int String
     | ClickedRemoveHeader Int
     | ClickedAddHeader
+    | ChangedBody String
 
 
 
@@ -172,6 +182,9 @@ update msg model =
 
         ClickedAddHeader ->
             ( { model | headers = model.headers ++ [ Header.empty ] }, Cmd.none )
+
+        ChangedBody body ->
+            ( { model | body = body }, Cmd.none )
 
 
 
