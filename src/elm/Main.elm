@@ -2,7 +2,7 @@ module Main exposing (Model, init)
 
 import Browser
 import Header exposing (Header)
-import Html exposing (Html, a, div, header, input, main_, option, select, span, text, textarea)
+import Html exposing (Html, a, button, div, header, input, main_, option, select, span, text, textarea)
 import Html.Attributes exposing (class, href, placeholder, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Icon
@@ -84,6 +84,13 @@ viewMain model =
                 ]
                 []
             ]
+        , div [ class "py-2 text-right" ]
+            [ button
+                [ class "font-semibold text-gray-400 bg-transparent rounded border-2 border-gray-400 py-2 px-4 hover:bg-gray-400 hover:text-gray-900 hover:border-transparent"
+                , onClick ClickedRunButton
+                ]
+                [ text "Run Profile" ]
+            ]
         ]
 
 
@@ -148,6 +155,7 @@ type Msg
     | ClickedRemoveHeader Int
     | ClickedAddHeader
     | ChangedBody String
+    | ClickedRunButton
 
 
 
@@ -185,6 +193,9 @@ update msg model =
 
         ChangedBody body ->
             ( { model | body = body }, Cmd.none )
+
+        ClickedRunButton ->
+            ( model, Cmd.none )
 
 
 
