@@ -54,7 +54,13 @@ viewMain model =
         [ class "max-w-3xl mx-auto px-3 pt-10" ]
         [ div [ class "flex items-center" ]
             [ viewVerbSelect
-            , viewInput "https://httprofile.io" ChangedURL
+            , input
+                [ type_ "text"
+                , placeholder "https://httprofile.io"
+                , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
+                , onInput ChangedURL
+                ]
+                []
             ]
         , text "Hi!"
         ]
@@ -76,17 +82,6 @@ viewVerbSelect =
 viewVerbOption : Verb.Verb -> Html msg
 viewVerbOption v =
     option [ value <| Verb.toString v ] [ text <| Verb.toString v ]
-
-
-viewInput : String -> (String -> msg) -> Html msg
-viewInput p msg =
-    input
-        [ type_ "text"
-        , placeholder p
-        , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
-        , onInput msg
-        ]
-        []
 
 
 
