@@ -27,12 +27,18 @@ type Status
     | Failed Http.Error
 
 
+type Visibility
+    = Visible
+    | Hidden
+
+
 type alias Model =
     { verb : Verb.Verb
     , url : String
     , headers : List Header
     , body : String
     , report : Status
+    , bodyVisibility : Visibility
     }
 
 
@@ -44,6 +50,7 @@ init =
           , headers = [ Header.empty ]
           , body = ""
           , report = NotRequested
+          , bodyVisibility = Hidden
           }
         , Cmd.none
         )
@@ -106,7 +113,7 @@ viewMain model =
                 ]
                 [ text "Run Profile" ]
             ]
-        , div [ class "my-10" ] [ viewReport model.report ]
+        , div [ class "my-10" ] [ viewReport model.report model.bodyVisibility ]
         ]
 
 
@@ -174,8 +181,8 @@ viewHeaderInput (List.Extra.Position idx lastIdx) header =
         ]
 
 
-viewReport : Status -> Html Msg
-viewReport status =
+viewReport : Status -> Visibility -> Html Msg
+viewReport status bodyVisibility =
     case status of
         Loaded report ->
             div []
@@ -189,6 +196,7 @@ viewReport status =
                     , Html.map never (viewStatus report.status)
                     ]
                 , ul [ class "py-2" ] <| List.map viewReportHeader report.headers
+                , viewReportBody bodyVisibility report.body
                 ]
 
         _ ->
@@ -230,6 +238,39 @@ viewReportHeader h =
         ]
 
 
+viewReportBody : Visibility -> String -> Html Msg
+viewReportBody visibility body =
+    let
+        toggleText =
+            case visibility of
+                Visible ->
+                    "hide body"
+
+                Hidden ->
+                    "show body"
+
+        bodyClass =
+            case visibility of
+                Visible ->
+                    ""
+
+                Hidden ->
+                    "hidden"
+    in
+    div [ class "text-md text-gray-400" ]
+        [ span [ class "text-lg" ] [ text "Body: " ]
+        , span [ class "text-teal-500" ]
+            [ text "[ "
+            , a [ class "cursor-pointer border-b border-teal-500", onClick ClickedBodyVisibilityToggle ] [ text toggleText ]
+            , text " ]"
+            ]
+        , div
+            [ class <| "mt-2 scroll-dark text-md h-64 border-2 border-gray-700 rounded py-2 px-2 overflow-auto font-mono " ++ bodyClass
+            ]
+            [ text body ]
+        ]
+
+
 viewDuration : Duration.Duration -> Html Never
 viewDuration d =
     d
@@ -253,6 +294,7 @@ type Msg
     | ChangedBody String
     | ClickedRunButton
     | CompletedProfile (Result Http.Error Report.Report)
+    | ClickedBodyVisibilityToggle
 
 
 
@@ -292,7 +334,7 @@ update msg model =
             ( { model | body = body }, Cmd.none )
 
         ClickedRunButton ->
-            ( { model | report = Loading }
+            ( { model | report = Loading, bodyVisibility = Hidden }
             , Profile.run CompletedProfile
                 { verb = model.verb
                 , url = model.url
@@ -306,6 +348,18 @@ update msg model =
 
         CompletedProfile (Ok report) ->
             ( { model | report = Loaded report }, Cmd.none )
+
+        ClickedBodyVisibilityToggle ->
+            let
+                toggled =
+                    case model.bodyVisibility of
+                        Visible ->
+                            Hidden
+
+                        Hidden ->
+                            Visible
+            in
+            ( { model | bodyVisibility = toggled }, Cmd.none )
 
 
 
