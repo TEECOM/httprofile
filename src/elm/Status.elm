@@ -1,9 +1,49 @@
-module Status exposing (text)
+module Status exposing (Category(..), category, text)
+
+-- TYPES
 
 
-text : Int -> String
-text i =
-    case i of
+type Category
+    = Informational
+    | Success
+    | Redirection
+    | ClientError
+    | ServerError
+    | Unknown
+
+
+type alias Code =
+    Int
+
+
+
+-- INFO
+
+
+category : Code -> Category
+category code =
+    if 100 <= code && code <= 199 then
+        Informational
+
+    else if 200 <= code && code <= 299 then
+        Success
+
+    else if 300 <= code && code <= 399 then
+        Redirection
+
+    else if 400 <= code && code <= 499 then
+        ClientError
+
+    else if 500 <= code && code <= 599 then
+        ServerError
+
+    else
+        Unknown
+
+
+text : Code -> String
+text code =
+    case code of
         100 ->
             "Continue"
 
