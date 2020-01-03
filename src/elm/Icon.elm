@@ -1,4 +1,4 @@
-module Icon exposing (downCarrot, logo, minus, plus)
+module Icon exposing (downCarrot, heart, logo, minus, plus)
 
 import Html exposing (Html)
 import Svg exposing (circle, path, rect, svg)
@@ -35,3 +35,10 @@ minus =
         [ circle [ cx "12", cy "12", r "10" ] []
         , rect [ width "12", height "2", x "6", y "11", rx "1", class "fill-current text-gray-900" ] []
         ]
+
+
+heart : Html Never
+heart =
+    svg
+        [ viewBox "0 0 20 20", class "fill-current h-4 hover:text-red-700" ]
+        [ path [ d "M10 3.22l-.61-.6a5.5 5.5 0 0 0-7.78 7.77L10 18.78l8.39-8.4a5.5 5.5 0 0 0-7.78-7.77l-.61.61z" ] [] ]

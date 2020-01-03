@@ -2,8 +2,8 @@ module Main exposing (Model, init)
 
 import Browser
 import Header exposing (Header)
-import Html exposing (Html, a, button, div, header, input, main_, option, select, span, text, textarea)
-import Html.Attributes exposing (class, href, placeholder, type_, value)
+import Html exposing (Html, a, button, div, footer, header, input, main_, option, select, span, text, textarea)
+import Html.Attributes exposing (class, href, placeholder, target, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Http
 import Icon
@@ -56,6 +56,7 @@ view model =
     div []
         [ Html.map never viewHeader
         , viewMain model
+        , Html.map never viewFooter
         ]
 
 
@@ -103,6 +104,21 @@ viewMain model =
                 ]
                 [ text "Run Profile" ]
             ]
+        ]
+
+
+viewFooter : Html Never
+viewFooter =
+    footer [ class "flex items-center text-gray-600 w-64 px-6 mx-auto mt-10" ]
+        [ span [ class "mr-2" ] [ text "made with" ]
+        , Html.map never Icon.heart
+        , span [ class "ml-2" ] [ text "by" ]
+        , a
+            [ href "https://teecom.com"
+            , class "ml-1 border-b border-gray-800 hover:text-teecom-blue hover:border-teecom-blue"
+            , target "_blank"
+            ]
+            [ text "TEECOM" ]
         ]
 
 
