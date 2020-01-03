@@ -228,7 +228,7 @@ update msg model =
             , Profile.run CompletedProfile
                 { verb = model.verb
                 , url = model.url
-                , headers = model.headers
+                , headers = List.filter (not << Header.isEmpty) model.headers
                 , body = model.body
                 }
             )

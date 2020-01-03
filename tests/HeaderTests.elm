@@ -12,7 +12,7 @@ import Test exposing (..)
 suite : Test
 suite =
     describe "The Header module"
-        [ key, value, mapKey, mapValue, decoder, encode ]
+        [ key, value, mapKey, mapValue, decoder, encode, isEmpty ]
 
 
 key : Test
@@ -126,4 +126,25 @@ encode =
                     |> Header.encode
                     |> Encode.encode 0
                     |> Expect.equal "{\"Accept\":\"application/json; charset=utf-8\",\"Access-Control-Allow-Origin\":\"*\",\"Content-Length\":\"42\",\"Content-Type\":\"application/json; charset=utf-8\"}"
+        ]
+
+
+isEmpty : Test
+isEmpty =
+    describe "Header.isEmpty"
+        [ test "returns true when no key or value is present" <|
+            \() ->
+                Header.header "" ""
+                    |> Header.isEmpty
+                    |> Expect.true "Expected the header to be empty."
+        , test "returns false when a key is present" <|
+            \() ->
+                Header.header "key" ""
+                    |> Header.isEmpty
+                    |> Expect.false "Expected the header not to be empty."
+        , test "returns false when a value is present" <|
+            \() ->
+                Header.header "" "value"
+                    |> Header.isEmpty
+                    |> Expect.false "Expected the header not to be empty."
         ]

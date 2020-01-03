@@ -1,4 +1,4 @@
-module Header exposing (Header, decoder, empty, encode, header, key, mapKey, mapValue, toHttp, value)
+module Header exposing (Header, decoder, empty, encode, header, isEmpty, key, mapKey, mapValue, toHttp, value)
 
 import Http
 import Json.Decode as Decode exposing (Decoder)
@@ -52,6 +52,11 @@ key (Header k _) =
 value : Header -> Value
 value (Header _ v) =
     v
+
+
+isEmpty : Header -> Bool
+isEmpty (Header k v) =
+    k == "" && v == ""
 
 
 
