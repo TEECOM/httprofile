@@ -25,3 +25,11 @@
 .scroll-dark::-webkit-scrollbar-corner {
     background: transparent;
 }
+
+::selection {
+    background: #a0aec0;
+}
+
+::-moz-selection {
+    background: #4a5568;
+}
