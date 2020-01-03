@@ -4,7 +4,7 @@ import Browser
 import Duration
 import Header exposing (Header)
 import Html exposing (Html, a, button, div, footer, header, input, li, main_, option, select, span, text, textarea, ul)
-import Html.Attributes exposing (class, disabled, href, placeholder, target, type_, value)
+import Html.Attributes exposing (class, disabled, href, placeholder, selected, target, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Http
 import Icon
@@ -88,12 +88,13 @@ viewMain model =
     Html.main_
         [ class "max-w-3xl mx-auto px-3 pt-10 py-2" ]
         [ div [ class "flex items-center" ]
-            [ viewVerbSelect
+            [ viewVerbSelect model.verb
             , input
                 [ type_ "text"
                 , placeholder "https://httprofile.io"
                 , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
                 , onInput ChangedURL
+                , value model.url
                 ]
                 []
             ]
@@ -103,6 +104,7 @@ viewMain model =
                 [ placeholder "{ \"request\": \"body\" }"
                 , class "scroll-dark bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
                 , onInput ChangedBody
+                , value model.body
                 ]
                 []
             ]
@@ -132,22 +134,22 @@ viewFooter =
         ]
 
 
-viewVerbSelect : Html Msg
-viewVerbSelect =
+viewVerbSelect : Verb.Verb -> Html Msg
+viewVerbSelect modelVerb =
     div [ class "inline-block relative" ]
         [ select
             [ class "bg-gray-800 border-2 border-gray-700 px-4 py-3 pr-8 rounded block appearance-none focus:outline-none focus:border-gray-600"
             , on "change" (Decode.map ChangedVerb Verb.targetValueDecoder)
             ]
-            (List.map viewVerbOption Verb.all)
+            (List.map (viewVerbOption modelVerb) Verb.all)
         , div [ class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600" ]
             [ Html.map never Icon.downCarrot ]
         ]
 
 
-viewVerbOption : Verb.Verb -> Html msg
-viewVerbOption v =
-    option [ value <| Verb.toString v ] [ text <| Verb.toString v ]
+viewVerbOption : Verb.Verb -> Verb.Verb -> Html msg
+viewVerbOption modelVerb verb =
+    option [ value <| Verb.toString verb, selected (modelVerb == verb) ] [ text <| Verb.toString verb ]
 
 
 viewHeaderInput : List.Extra.Position -> Header -> Html Msg
