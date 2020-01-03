@@ -1,6 +1,7 @@
 module Main exposing (Model, init)
 
 import Browser
+import Duration
 import Header exposing (Header)
 import Html exposing (Html, a, button, div, footer, header, input, main_, option, select, span, text, textarea)
 import Html.Attributes exposing (class, href, placeholder, target, type_, value)
@@ -11,6 +12,7 @@ import Json.Decode as Decode
 import List.Extra exposing (mapOnly, positionedMap, removeAt)
 import Profile
 import Profile.Report as Report
+import Status
 import Verb
 
 
@@ -104,6 +106,7 @@ viewMain model =
                 ]
                 [ text "Run Profile" ]
             ]
+        , div [ class "my-10" ] [ viewReport model.report ]
         ]
 
 
@@ -169,6 +172,62 @@ viewHeaderInput (List.Extra.Position idx lastIdx) header =
             []
         , action
         ]
+
+
+viewReport : Status -> Html Msg
+viewReport status =
+    case status of
+        Loaded report ->
+            div []
+                [ div [ class "text-2xl" ]
+                    [ span [ class "text-gray-400" ] [ text "Total Request Time: " ]
+                    , span [ class "font-semibold text-teal-500" ]
+                        [ Html.map never <| viewDuration report.aggregateTimeline.totalRequestTime ]
+                    ]
+                , div [ class "flex items-center pt-8" ]
+                    [ span [ class "text-lg text-teal-500" ] [ text report.protocol ]
+                    , Html.map never (viewStatus report.status)
+                    ]
+                ]
+
+        _ ->
+            div [] []
+
+
+viewStatus : Int -> Html Never
+viewStatus code =
+    let
+        color =
+            case Status.category code of
+                Status.Informational ->
+                    "teal-500"
+
+                Status.Success ->
+                    "green-500"
+
+                Status.Redirection ->
+                    "purple-500"
+
+                Status.ClientError ->
+                    "orange-500"
+
+                Status.ServerError ->
+                    "red-500"
+
+                Status.Unknown ->
+                    "gray-500"
+    in
+    span [ class <| "text-md text-" ++ color ++ " ml-2 border-2 border-" ++ color ++ " px-3 rounded-full" ]
+        [ text <| String.fromInt code ++ " " ++ Status.text code ]
+
+
+viewDuration : Duration.Duration -> Html Never
+viewDuration d =
+    d
+        |> Duration.inMilliseconds
+        |> (round >> String.fromInt)
+        |> (\s -> s ++ "ms")
+        |> text
 
 
 
