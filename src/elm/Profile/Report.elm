@@ -1,5 +1,6 @@
 module Profile.Report exposing (AggregateTimeline, DiscreteTimeline, Report, decoder)
 
+import Duration exposing (Duration)
 import Header exposing (Header)
 import Json.Decode as Decode exposing (Decoder)
 
@@ -19,20 +20,20 @@ type alias Report =
 
 
 type alias DiscreteTimeline =
-    { dnsLookupDuration : Int
-    , tcpConnectionDuration : Int
-    , tlsHandshakeDuration : Int
-    , serverProcessingDuration : Int
-    , contentTransferDuration : Int
+    { dnsLookupDuration : Duration
+    , tcpConnectionDuration : Duration
+    , tlsHandshakeDuration : Duration
+    , serverProcessingDuration : Duration
+    , contentTransferDuration : Duration
     }
 
 
 type alias AggregateTimeline =
-    { timeToNameLookup : Int
-    , timeToConnect : Int
-    , timeToPreTransfer : Int
-    , timeToStartTransfer : Int
-    , totalRequestTime : Int
+    { timeToNameLookup : Duration
+    , timeToConnect : Duration
+    , timeToPreTransfer : Duration
+    , timeToStartTransfer : Duration
+    , totalRequestTime : Duration
     }
 
 
@@ -54,18 +55,23 @@ decoder =
 discreteTimelineDecoder : Decoder DiscreteTimeline
 discreteTimelineDecoder =
     Decode.map5 DiscreteTimeline
-        (Decode.field "dnsLookupDuration" Decode.int)
-        (Decode.field "tcpConnectionDuration" Decode.int)
-        (Decode.field "tlsHandshakeDuration" Decode.int)
-        (Decode.field "serverProcessingDuration" Decode.int)
-        (Decode.field "contentTransferDuration" Decode.int)
+        (Decode.field "dnsLookupDuration" durationDecoder)
+        (Decode.field "tcpConnectionDuration" durationDecoder)
+        (Decode.field "tlsHandshakeDuration" durationDecoder)
+        (Decode.field "serverProcessingDuration" durationDecoder)
+        (Decode.field "contentTransferDuration" durationDecoder)
 
 
 aggregateTimelineDecoder : Decoder AggregateTimeline
 aggregateTimelineDecoder =
     Decode.map5 AggregateTimeline
-        (Decode.field "timeToNameLookup" Decode.int)
-        (Decode.field "timeToConnect" Decode.int)
-        (Decode.field "timeToPreTransfer" Decode.int)
-        (Decode.field "timeToStartTransfer" Decode.int)
-        (Decode.field "totalRequestTime" Decode.int)
+        (Decode.field "timeToNameLookup" durationDecoder)
+        (Decode.field "timeToConnect" durationDecoder)
+        (Decode.field "timeToPreTransfer" durationDecoder)
+        (Decode.field "timeToStartTransfer" durationDecoder)
+        (Decode.field "totalRequestTime" durationDecoder)
+
+
+durationDecoder : Decoder Duration
+durationDecoder =
+    Decode.int |> Decode.map (toFloat >> Duration.nanoseconds)

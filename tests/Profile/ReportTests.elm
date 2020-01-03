@@ -1,5 +1,6 @@
 module Profile.ReportTests exposing (suite)
 
+import Duration
 import Expect
 import Header
 import Json.Decode exposing (decodeString)
@@ -42,17 +43,17 @@ expectedReport =
         ]
     , body = "{\"message\":\"Hello World!\"}\n"
     , discreteTimeline =
-        { dnsLookupDuration = 481387
-        , tcpConnectionDuration = 209086
-        , tlsHandshakeDuration = 0
-        , serverProcessingDuration = 444833
-        , contentTransferDuration = 19944
+        { dnsLookupDuration = Duration.nanoseconds 481387
+        , tcpConnectionDuration = Duration.nanoseconds 209086
+        , tlsHandshakeDuration = Duration.nanoseconds 0
+        , serverProcessingDuration = Duration.nanoseconds 444833
+        , contentTransferDuration = Duration.nanoseconds 19944
         }
     , aggregateTimeline =
-        { timeToNameLookup = 481387
-        , timeToConnect = 690473
-        , timeToPreTransfer = 722258
-        , timeToStartTransfer = 1167091
-        , totalRequestTime = 1187035
+        { timeToNameLookup = Duration.nanoseconds 481387
+        , timeToConnect = Duration.nanoseconds 690473
+        , timeToPreTransfer = Duration.nanoseconds 722258
+        , timeToStartTransfer = Duration.nanoseconds 1167091
+        , totalRequestTime = Duration.nanoseconds 1187035
         }
     }
