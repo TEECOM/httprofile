@@ -3,7 +3,7 @@ module Main exposing (Model, init)
 import Browser
 import Duration
 import Header exposing (Header)
-import Html exposing (Html, a, button, div, footer, header, input, main_, option, select, span, text, textarea)
+import Html exposing (Html, a, button, div, footer, header, input, li, main_, option, select, span, text, textarea, ul)
 import Html.Attributes exposing (class, href, placeholder, target, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Http
@@ -188,6 +188,7 @@ viewReport status =
                     [ span [ class "text-lg text-teal-500" ] [ text report.protocol ]
                     , Html.map never (viewStatus report.status)
                     ]
+                , ul [ class "py-2" ] <| List.map viewReportHeader report.headers
                 ]
 
         _ ->
@@ -219,6 +220,14 @@ viewStatus code =
     in
     span [ class <| "text-md text-" ++ color ++ " ml-2 border-2 border-" ++ color ++ " px-3 rounded-full" ]
         [ text <| String.fromInt code ++ " " ++ Status.text code ]
+
+
+viewReportHeader : Header -> Html msg
+viewReportHeader h =
+    li []
+        [ span [ class "text-gray-400" ] [ text (Header.key h ++ ": ") ]
+        , span [ class "text-teal-500" ] [ text (Header.value h) ]
+        ]
 
 
 viewDuration : Duration.Duration -> Html Never
