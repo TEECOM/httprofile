@@ -91,7 +91,7 @@ viewMain model =
         , div [ class "py-2" ]
             [ textarea
                 [ placeholder "{ \"request\": \"body\" }"
-                , class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
+                , class "scroll-dark bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
                 , onInput ChangedBody
                 ]
                 []

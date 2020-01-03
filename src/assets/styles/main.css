@@ -3,3 +3,25 @@
 @tailwind components;
 
 @tailwind utilities;
+
+.scroll-dark {
+    scrollbar-color: #718096 transparent;
+}
+
+.scroll-dark::-webkit-scrollbar {
+    width: 12px;
+}
+
+.scroll-dark::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 2px;
+}
+
+.scroll-dark::-webkit-scrollbar-thumb {
+    border-radius: 8px;
+    background: #718096;
+}
+
+.scroll-dark::-webkit-scrollbar-corner {
+    background: transparent;
+}
