@@ -3,7 +3,6 @@ const glob = require('glob');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const TerserPlugin = require('terser-webpack-plugin');
-const PurgecssPlugin = require('purgecss-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
@@ -61,9 +60,9 @@ module.exports = () => ({
       filename: 'assets/css/[name].[contenthash].css',
     }),
 
-    new PurgecssPlugin({
-      paths: glob.sync(path.join(__dirname, '../src/**/*.elm'), { nodir: true }),
-    }),
+    // new PurgecssPlugin({
+    //   paths: glob.sync(path.join(__dirname, '../src/**/*.elm'), { nodir: true }),
+    // }),
 
     new CopyWebpackPlugin([
       { from: 'src/assets/images', to: 'assets/images' },
