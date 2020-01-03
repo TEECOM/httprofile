@@ -4,7 +4,7 @@ import Browser
 import Duration
 import Header exposing (Header)
 import Html exposing (Html, a, button, div, footer, header, input, li, main_, option, select, span, text, textarea, ul)
-import Html.Attributes exposing (class, href, placeholder, target, type_, value)
+import Html.Attributes exposing (class, disabled, href, placeholder, target, type_, value)
 import Html.Events exposing (on, onClick, onInput)
 import Http
 import Icon
@@ -155,10 +155,10 @@ viewHeaderInput (List.Extra.Position idx lastIdx) header =
     let
         action =
             if idx == lastIdx then
-                a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
+                a [ class "cursor-pointer ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
 
             else
-                a [ class "ml-2 text-gray-600 hover:text-gray-500", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
+                a [ class "cursor-pointer ml-2 text-gray-600 hover:text-gray-500", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
     in
     div [ class "flex items-center my-2" ]
         [ input
