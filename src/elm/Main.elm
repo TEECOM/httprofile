@@ -191,7 +191,9 @@ viewReport status bodyVisibility =
                     , span [ class "font-semibold text-teal-500" ]
                         [ Html.map never <| viewDuration report.aggregateTimeline.totalRequestTime ]
                     ]
-                , div [ class "flex items-center pt-8" ]
+                , viewDiscreteTimeline report.discreteTimeline
+                , viewAggregateTimeline report.aggregateTimeline
+                , div [ class "flex items-center pt-12" ]
                     [ span [ class "text-lg text-teal-500" ] [ text report.protocol ]
                     , Html.map never (viewStatus report.status)
                     ]
@@ -201,6 +203,63 @@ viewReport status bodyVisibility =
 
         _ ->
             div [] []
+
+
+viewDiscreteTimeline : Report.DiscreteTimeline -> Html msg
+viewDiscreteTimeline t =
+    div [ class "py-4 flex text-sm" ]
+        [ div [ class "rounded bg-gray-800 px-2 py-3 w-full text-center" ]
+            [ span [ class "block text-gray-300" ] [ text "DNS Lookup" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.dnsLookupDuration ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "TCP Connection" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.tcpConnectionDuration ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "SSL Handshake" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.tlsHandshakeDuration ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "Server Processing" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.serverProcessingDuration ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "Content Transfer" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.contentTransferDuration ]
+            ]
+        ]
+
+
+viewAggregateTimeline : Report.AggregateTimeline -> Html msg
+viewAggregateTimeline t =
+    div [ class "py-4 flex mx-auto w-4/5 text-sm" ]
+        [ div [ class "rounded bg-gray-800 px-2 py-2 w-full text-center" ]
+            [ span [ class "block text-gray-300" ] [ text "Name Lookup" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToNameLookup ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "Connect" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToConnect ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "Pre-Transfer" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToPreTransfer ]
+            ]
+        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
+            [ span [ class "block text-gray-300" ] [ text "Start Transfer" ]
+            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToStartTransfer ]
+            ]
+        ]
+
+
+viewDuration : Duration.Duration -> Html Never
+viewDuration d =
+    d
+        |> Duration.inMilliseconds
+        |> (round >> String.fromInt)
+        |> (\s -> s ++ "ms")
+        |> text
 
 
 viewStatus : Int -> Html Never
@@ -269,15 +328,6 @@ viewReportBody visibility body =
             ]
             [ text body ]
         ]
-
-
-viewDuration : Duration.Duration -> Html Never
-viewDuration d =
-    d
-        |> Duration.inMilliseconds
-        |> (round >> String.fromInt)
-        |> (\s -> s ++ "ms")
-        |> text
 
 
 
