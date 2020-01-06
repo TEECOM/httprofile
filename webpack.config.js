@@ -20,7 +20,7 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
           filename: 'index.html',
         }),
         new CopyWebpackPlugin([
-          { from: 'src/assets/favicon.ico' }
+          { from: 'src/assets/favicon.png' }
         ]),
       ]
     },
