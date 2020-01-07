@@ -1,335 +1,57 @@
-module Main exposing (Model, init)
+module Main exposing (main)
 
 import Browser
-import Duration
-import Header exposing (Header)
-import Html exposing (Html, a, button, div, footer, header, input, li, main_, option, select, span, text, textarea, ul)
-import Html.Attributes exposing (class, disabled, href, placeholder, selected, target, type_, value)
-import Html.Events exposing (on, onClick, onInput)
-import Http
-import Icon
-import Json.Decode as Decode
-import List.Extra exposing (mapOnly, positionedMap, removeAt)
-import Profile
-import Profile.Report as Report
-import Status
-import Verb
+import Browser.Navigation as Nav
+import Page
+import Page.About
+import Page.Api
+import Page.Home
+import Page.NotFound
+import Route
+import Url
 
 
 
 -- MODEL
 
 
-type Status
-    = NotRequested
-    | Loading
-    | Loaded Report.Report
-    | Failed Http.Error
-
-
-type Visibility
-    = Visible
-    | Hidden
-
-
 type alias Model =
-    { verb : Verb.Verb
-    , url : String
-    , headers : List Header
-    , body : String
-    , report : Status
-    , bodyVisibility : Visibility
+    { key : Nav.Key
+    , page : Page
     }
 
 
-init : () -> ( Model, Cmd Msg )
-init =
-    always
-        ( { verb = Verb.Get
-          , url = ""
-          , headers = [ Header.empty ]
-          , body = ""
-          , report = NotRequested
-          , bodyVisibility = Hidden
-          }
-        , Cmd.none
-        )
+type Page
+    = NotFound
+    | Home Page.Home.Model
+    | Api Page.Api.Model
+    | About Page.About.Model
+
+
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init _ url key =
+    changeToPage (Route.fromUrl url)
+        { key = key, page = NotFound }
 
 
 
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
-    div []
-        [ Html.map never viewHeader
-        , viewMain model
-        , Html.map never viewFooter
-        ]
+    case model.page of
+        NotFound ->
+            Page.view never Page.NotFound.view
 
+        Home home ->
+            Page.view GotHomeMsg (Page.Home.view home)
 
-viewHeader : Html Never
-viewHeader =
-    header [ class "flex items-center justify-between max-w-3xl mx-auto py-6 px-3" ]
-        [ a [ href "/", class "flex items-center" ]
-            [ Html.map never Icon.logo
-            , span [ class "text-xl font-bold tracking-wide px-2" ] [ text "HTTProfile" ]
-            ]
-        , div [ class "font-semibold text-gray-500" ]
-            [ a [ href "#", class "pl-3 hover:text-gray-300" ] [ text "API" ]
-            , a [ href "#", class "pl-3 hover:text-gray-300" ] [ text "About" ]
-            ]
-        ]
+        Api api ->
+            Page.view GotApiMsg (Page.Api.view api)
 
-
-viewMain : Model -> Html Msg
-viewMain model =
-    Html.main_
-        [ class "max-w-3xl mx-auto px-3 pt-10 py-2" ]
-        [ div [ class "flex items-center" ]
-            [ viewVerbSelect model.verb
-            , input
-                [ type_ "text"
-                , placeholder "https://httprofile.io"
-                , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
-                , onInput ChangedURL
-                , value model.url
-                ]
-                []
-            ]
-        , div [ class "py-2" ] (positionedMap viewHeaderInput model.headers)
-        , div [ class "py-2" ]
-            [ textarea
-                [ placeholder "{ \"request\": \"body\" }"
-                , class "scroll-dark bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
-                , onInput ChangedBody
-                , value model.body
-                ]
-                []
-            ]
-        , div [ class "py-2 text-right" ]
-            [ button
-                [ class "font-semibold text-gray-400 bg-transparent rounded border-2 border-gray-400 py-2 px-4 hover:bg-gray-400 hover:text-gray-900 hover:border-transparent focus:outline-none focus:border-gray-700"
-                , onClick ClickedRunButton
-                ]
-                [ text "Run Profile" ]
-            ]
-        , div [ class "my-10" ] [ viewReport model.report model.bodyVisibility ]
-        ]
-
-
-viewFooter : Html Never
-viewFooter =
-    footer [ class "flex items-center text-gray-600 w-64 px-6 mx-auto mt-10" ]
-        [ span [ class "mr-2" ] [ text "made with" ]
-        , Html.map never Icon.heart
-        , span [ class "ml-2" ] [ text "by" ]
-        , a
-            [ href "https://teecom.com"
-            , class "ml-1 border-b border-gray-800 hover:text-teecom-blue hover:border-teecom-blue"
-            , target "_blank"
-            ]
-            [ text "TEECOM" ]
-        ]
-
-
-viewVerbSelect : Verb.Verb -> Html Msg
-viewVerbSelect modelVerb =
-    div [ class "inline-block relative" ]
-        [ select
-            [ class "bg-gray-800 border-2 border-gray-700 px-4 py-3 pr-8 rounded block appearance-none focus:outline-none focus:border-gray-600"
-            , on "change" (Decode.map ChangedVerb Verb.targetValueDecoder)
-            ]
-            (List.map (viewVerbOption modelVerb) Verb.all)
-        , div [ class "pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-600" ]
-            [ Html.map never Icon.downCarrot ]
-        ]
-
-
-viewVerbOption : Verb.Verb -> Verb.Verb -> Html msg
-viewVerbOption modelVerb verb =
-    option [ value <| Verb.toString verb, selected (modelVerb == verb) ] [ text <| Verb.toString verb ]
-
-
-viewHeaderInput : List.Extra.Position -> Header -> Html Msg
-viewHeaderInput (List.Extra.Position idx lastIdx) header =
-    let
-        action =
-            if idx == lastIdx then
-                a [ class "cursor-pointer ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
-
-            else
-                a [ class "cursor-pointer ml-2 text-gray-600 hover:text-gray-500", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
-    in
-    div [ class "flex items-center my-2" ]
-        [ input
-            [ type_ "text"
-            , placeholder "Content-Type"
-            , class "bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-2/5 appearance-none focus:outline-none focus:border-gray-700"
-            , onInput <| ChangedHeaderKey idx
-            , value <| Header.key header
-            ]
-            []
-        , input
-            [ type_ "text"
-            , placeholder "application/json"
-            , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
-            , onInput <| ChangedHeaderValue idx
-            , value <| Header.value header
-            ]
-            []
-        , action
-        ]
-
-
-viewReport : Status -> Visibility -> Html Msg
-viewReport status bodyVisibility =
-    case status of
-        Loaded report ->
-            div []
-                [ div [ class "text-2xl" ]
-                    [ span [ class "text-gray-400" ] [ text "Total Request Time: " ]
-                    , span [ class "font-semibold text-teal-500" ]
-                        [ Html.map never <| viewDuration report.aggregateTimeline.totalRequestTime ]
-                    ]
-                , viewDiscreteTimeline report.discreteTimeline
-                , viewAggregateTimeline report.aggregateTimeline
-                , div [ class "flex items-center pt-12" ]
-                    [ span [ class "text-lg text-teal-500" ] [ text report.protocol ]
-                    , Html.map never (viewStatus report.status)
-                    ]
-                , ul [ class "py-2" ] <| List.map viewReportHeader report.headers
-                , viewReportBody bodyVisibility report.body
-                ]
-
-        _ ->
-            div [] []
-
-
-viewDiscreteTimeline : Report.DiscreteTimeline -> Html msg
-viewDiscreteTimeline t =
-    div [ class "py-4 flex text-sm" ]
-        [ div [ class "rounded bg-gray-800 px-2 py-3 w-full text-center" ]
-            [ span [ class "block text-gray-300" ] [ text "DNS Lookup" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.dnsLookupDuration ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "TCP Connection" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.tcpConnectionDuration ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "SSL Handshake" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.tlsHandshakeDuration ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "Server Processing" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.serverProcessingDuration ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "Content Transfer" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.contentTransferDuration ]
-            ]
-        ]
-
-
-viewAggregateTimeline : Report.AggregateTimeline -> Html msg
-viewAggregateTimeline t =
-    div [ class "py-4 flex mx-auto w-4/5 text-sm" ]
-        [ div [ class "rounded bg-gray-800 px-2 py-2 w-full text-center" ]
-            [ span [ class "block text-gray-300" ] [ text "Name Lookup" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToNameLookup ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "Connect" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToConnect ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "Pre-Transfer" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToPreTransfer ]
-            ]
-        , div [ class "rounded bg-gray-800 px-2 py-2 text-center w-full ml-2" ]
-            [ span [ class "block text-gray-300" ] [ text "Start Transfer" ]
-            , span [ class "block font-semibold text-teal-500 text-lg pt-2" ] [ Html.map never <| viewDuration t.timeToStartTransfer ]
-            ]
-        ]
-
-
-viewDuration : Duration.Duration -> Html Never
-viewDuration d =
-    d
-        |> Duration.inMilliseconds
-        |> (round >> String.fromInt)
-        |> (\s -> s ++ "ms")
-        |> text
-
-
-viewStatus : Int -> Html Never
-viewStatus code =
-    let
-        color =
-            case Status.category code of
-                Status.Informational ->
-                    "teal-500"
-
-                Status.Success ->
-                    "green-500"
-
-                Status.Redirection ->
-                    "purple-500"
-
-                Status.ClientError ->
-                    "orange-500"
-
-                Status.ServerError ->
-                    "red-500"
-
-                Status.Unknown ->
-                    "gray-500"
-    in
-    span [ class <| "text-md text-" ++ color ++ " ml-2 border-2 border-" ++ color ++ " px-3 rounded-full" ]
-        [ text <| String.fromInt code ++ " " ++ Status.text code ]
-
-
-viewReportHeader : Header -> Html msg
-viewReportHeader h =
-    li []
-        [ span [ class "text-gray-400" ] [ text (Header.key h ++ ": ") ]
-        , span [ class "text-teal-500" ] [ text (Header.value h) ]
-        ]
-
-
-viewReportBody : Visibility -> String -> Html Msg
-viewReportBody visibility body =
-    let
-        toggleText =
-            case visibility of
-                Visible ->
-                    "hide body"
-
-                Hidden ->
-                    "show body"
-
-        bodyClass =
-            case visibility of
-                Visible ->
-                    ""
-
-                Hidden ->
-                    "hidden"
-    in
-    div [ class "text-md text-gray-400" ]
-        [ span [ class "text-lg" ] [ text "Body: " ]
-        , span [ class "text-teal-500" ]
-            [ text "[ "
-            , a [ class "cursor-pointer border-b border-teal-500", onClick ClickedBodyVisibilityToggle ] [ text toggleText ]
-            , text " ]"
-            ]
-        , div
-            [ class <| "mt-2 scroll-dark text-md h-64 border-2 border-gray-700 rounded py-2 px-2 overflow-auto font-mono " ++ bodyClass
-            ]
-            [ text body ]
-        ]
+        About about ->
+            Page.view GotAboutMsg (Page.About.view about)
 
 
 
@@ -337,16 +59,11 @@ viewReportBody visibility body =
 
 
 type Msg
-    = ChangedURL String
-    | ChangedVerb Verb.Verb
-    | ChangedHeaderKey Int String
-    | ChangedHeaderValue Int String
-    | ClickedRemoveHeader Int
-    | ClickedAddHeader
-    | ChangedBody String
-    | ClickedRunButton
-    | CompletedProfile (Result Http.Error Report.Report)
-    | ClickedBodyVisibilityToggle
+    = ClickedLink Browser.UrlRequest
+    | ChangedUrl Url.Url
+    | GotHomeMsg Page.Home.Msg
+    | GotApiMsg Page.Api.Msg
+    | GotAboutMsg Page.About.Msg
 
 
 
@@ -355,63 +72,60 @@ type Msg
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        ChangedVerb verb ->
-            ( { model | verb = verb }, Cmd.none )
+    case ( msg, model.page ) of
+        ( ClickedLink urlRequest, _ ) ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
 
-        ChangedURL url ->
-            ( { model | url = url }, Cmd.none )
+                Browser.External url ->
+                    ( model, Nav.load url )
 
-        ChangedHeaderKey idx key ->
-            let
-                updateKey =
-                    Header.mapKey (always key)
-            in
-            ( { model | headers = mapOnly idx updateKey model.headers }, Cmd.none )
+        ( ChangedUrl url, _ ) ->
+            changeToPage (Route.fromUrl url) model
 
-        ChangedHeaderValue idx value ->
-            let
-                updateValue =
-                    Header.mapValue (always value)
-            in
-            ( { model | headers = mapOnly idx updateValue model.headers }, Cmd.none )
+        ( GotHomeMsg subMsg, Home home ) ->
+            Page.Home.update subMsg home |> mapToHome model
 
-        ClickedRemoveHeader idx ->
-            ( { model | headers = removeAt idx model.headers }, Cmd.none )
+        ( GotApiMsg subMsg, Api api ) ->
+            Page.Api.update subMsg api |> mapToApi model
 
-        ClickedAddHeader ->
-            ( { model | headers = model.headers ++ [ Header.empty ] }, Cmd.none )
+        ( GotAboutMsg subMsg, About about ) ->
+            Page.About.update subMsg about |> mapToAbout model
 
-        ChangedBody body ->
-            ( { model | body = body }, Cmd.none )
+        _ ->
+            ( model, Cmd.none )
 
-        ClickedRunButton ->
-            ( { model | report = Loading, bodyVisibility = Hidden }
-            , Profile.run CompletedProfile
-                { verb = model.verb
-                , url = model.url
-                , headers = List.filter (not << Header.isEmpty) model.headers
-                , body = model.body
-                }
-            )
 
-        CompletedProfile (Err error) ->
-            ( { model | report = Failed error }, Cmd.none )
+changeToPage : Maybe Route.Route -> Model -> ( Model, Cmd Msg )
+changeToPage maybeRoute model =
+    case maybeRoute of
+        Nothing ->
+            ( { model | page = NotFound }, Cmd.none )
 
-        CompletedProfile (Ok report) ->
-            ( { model | report = Loaded report }, Cmd.none )
+        Just Route.Home ->
+            Page.Home.init |> mapToHome model
 
-        ClickedBodyVisibilityToggle ->
-            let
-                toggled =
-                    case model.bodyVisibility of
-                        Visible ->
-                            Hidden
+        Just Route.Api ->
+            Page.Api.init |> mapToApi model
 
-                        Hidden ->
-                            Visible
-            in
-            ( { model | bodyVisibility = toggled }, Cmd.none )
+        Just Route.About ->
+            Page.About.init |> mapToAbout model
+
+
+mapToHome : Model -> ( Page.Home.Model, Cmd Page.Home.Msg ) -> ( Model, Cmd Msg )
+mapToHome model ( subModel, subCmd ) =
+    ( { model | page = Home subModel }, Cmd.map GotHomeMsg subCmd )
+
+
+mapToApi : Model -> ( Page.Api.Model, Cmd Page.Api.Msg ) -> ( Model, Cmd Msg )
+mapToApi model ( subModel, subCmd ) =
+    ( { model | page = Api subModel }, Cmd.map GotApiMsg subCmd )
+
+
+mapToAbout : Model -> ( Page.About.Model, Cmd Page.About.Msg ) -> ( Model, Cmd Msg )
+mapToAbout model ( subModel, subCmd ) =
+    ( { model | page = About subModel }, Cmd.map GotAboutMsg subCmd )
 
 
 
@@ -420,9 +134,11 @@ update msg model =
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.application
         { init = init
         , view = view
         , update = update
         , subscriptions = always Sub.none
+        , onUrlRequest = ClickedLink
+        , onUrlChange = ChangedUrl
         }
