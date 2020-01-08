@@ -3,6 +3,7 @@ module Profile.Report exposing (AggregateTimeline, DiscreteTimeline, Report, dec
 import Duration exposing (Duration)
 import Header exposing (Header)
 import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline as Pipeline
 
 
 
@@ -43,33 +44,33 @@ type alias AggregateTimeline =
 
 decoder : Decoder Report
 decoder =
-    Decode.map6 Report
-        (Decode.field "protocol" Decode.string)
-        (Decode.field "status" Decode.int)
-        (Decode.field "headers" Header.decoder)
-        (Decode.field "body" Decode.string)
-        discreteTimelineDecoder
-        aggregateTimelineDecoder
+    Decode.succeed Report
+        |> Pipeline.required "protocol" Decode.string
+        |> Pipeline.required "status" Decode.int
+        |> Pipeline.required "headers" Header.decoder
+        |> Pipeline.required "body" Decode.string
+        |> Pipeline.custom discreteTimelineDecoder
+        |> Pipeline.custom aggregateTimelineDecoder
 
 
 discreteTimelineDecoder : Decoder DiscreteTimeline
 discreteTimelineDecoder =
-    Decode.map5 DiscreteTimeline
-        (Decode.field "dnsLookupDuration" durationDecoder)
-        (Decode.field "tcpConnectionDuration" durationDecoder)
-        (Decode.field "tlsHandshakeDuration" durationDecoder)
-        (Decode.field "serverProcessingDuration" durationDecoder)
-        (Decode.field "contentTransferDuration" durationDecoder)
+    Decode.succeed DiscreteTimeline
+        |> Pipeline.required "dnsLookupDuration" durationDecoder
+        |> Pipeline.required "tcpConnectionDuration" durationDecoder
+        |> Pipeline.required "tlsHandshakeDuration" durationDecoder
+        |> Pipeline.required "serverProcessingDuration" durationDecoder
+        |> Pipeline.required "contentTransferDuration" durationDecoder
 
 
 aggregateTimelineDecoder : Decoder AggregateTimeline
 aggregateTimelineDecoder =
-    Decode.map5 AggregateTimeline
-        (Decode.field "timeToNameLookup" durationDecoder)
-        (Decode.field "timeToConnect" durationDecoder)
-        (Decode.field "timeToPreTransfer" durationDecoder)
-        (Decode.field "timeToStartTransfer" durationDecoder)
-        (Decode.field "totalRequestTime" durationDecoder)
+    Decode.succeed AggregateTimeline
+        |> Pipeline.required "timeToNameLookup" durationDecoder
+        |> Pipeline.required "timeToConnect" durationDecoder
+        |> Pipeline.required "timeToPreTransfer" durationDecoder
+        |> Pipeline.required "timeToStartTransfer" durationDecoder
+        |> Pipeline.required "totalRequestTime" durationDecoder
 
 
 durationDecoder : Decoder Duration
