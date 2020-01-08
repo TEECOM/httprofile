@@ -3,7 +3,6 @@ module Profile exposing (run)
 import Http
 import Profile.Report as Report exposing (Report)
 import Profile.Target as Target exposing (Target)
-import Verb
 
 
 run : (Result Http.Error Report -> msg) -> Target -> Cmd msg
