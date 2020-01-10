@@ -3,9 +3,9 @@ module Page.Home exposing (Model, Msg, init, update, view)
 import Browser
 import Duration
 import Header exposing (Header)
-import Html exposing (Html, button, div, input, li, option, select, span, text, textarea, ul)
+import Html exposing (Html, button, div, form, input, li, option, select, span, text, textarea, ul)
 import Html.Attributes exposing (class, placeholder, selected, type_, value)
-import Html.Events exposing (on, onClick, onInput)
+import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Http
 import Icon
 import Json.Decode as Decode
@@ -63,33 +63,35 @@ view : Model -> Browser.Document Msg
 view model =
     { title = "HTTProfile"
     , body =
-        [ div [ class "flex items-center" ]
-            [ viewVerbSelect model.verb
-            , input
-                [ type_ "text"
-                , placeholder "https://httprofile.io"
-                , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
-                , onInput ChangedURL
-                , value model.url
+        [ form [ onSubmit RequestedProfile ]
+            [ div [ class "flex items-center" ]
+                [ viewVerbSelect model.verb
+                , input
+                    [ type_ "text"
+                    , placeholder "https://httprofile.io"
+                    , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
+                    , onInput ChangedURL
+                    , value model.url
+                    ]
+                    []
                 ]
-                []
-            ]
-        , div [ class "py-2" ] (positionedMap viewHeaderInput model.headers)
-        , div [ class "py-2" ]
-            [ textarea
-                [ placeholder "{ \"request\": \"body\" }"
-                , class "scroll-dark bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
-                , onInput ChangedBody
-                , value model.body
+            , div [ class "py-2" ] (positionedMap viewHeaderInput model.headers)
+            , div [ class "py-2" ]
+                [ textarea
+                    [ placeholder "{ \"request\": \"body\" }"
+                    , class "scroll-dark bg-gray-800 rounded border-2 border-transparent py-3 px-4 w-full h-40 appearance-none focus:outline-none focus:border-gray-700"
+                    , onInput ChangedBody
+                    , value model.body
+                    ]
+                    []
                 ]
-                []
-            ]
-        , div [ class "py-2 text-right" ]
-            [ button
-                [ class "font-semibold text-gray-400 bg-transparent rounded border-2 border-gray-400 py-2 px-4 hover:bg-gray-400 hover:text-gray-900 hover:border-transparent focus:outline-none focus:border-gray-700"
-                , onClick ClickedRunButton
+            , div [ class "py-2 text-right" ]
+                [ button
+                    [ class "font-semibold text-gray-400 bg-transparent rounded border-2 border-gray-400 py-2 px-4 hover:bg-gray-400 hover:text-gray-900 hover:border-transparent focus:outline-none focus:border-gray-700"
+                    , type_ "submit"
+                    ]
+                    [ text "Run Profile" ]
                 ]
-                [ text "Run Profile" ]
             ]
         , div [ class "my-10" ] [ viewReport model.report model.bodyVisibility ]
         ]
@@ -119,10 +121,10 @@ viewHeaderInput (List.Extra.Position idx lastIdx) header =
     let
         action =
             if idx == lastIdx then
-                button [ class "ml-2 text-gray-600 hover:text-gray-500", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
+                button [ class "ml-2 text-gray-600 hover:text-gray-500", type_ "button", onClick ClickedAddHeader ] [ Html.map never Icon.plus ]
 
             else
-                button [ class "ml-2 text-gray-600 hover:text-gray-500", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
+                button [ class "ml-2 text-gray-600 hover:text-gray-500", type_ "button", onClick <| ClickedRemoveHeader idx ] [ Html.map never Icon.minus ]
     in
     div [ class "flex items-center my-2" ]
         [ input
@@ -306,7 +308,7 @@ type Msg
     | ClickedRemoveHeader Int
     | ClickedAddHeader
     | ChangedBody String
-    | ClickedRunButton
+    | RequestedProfile
     | CompletedProfile (Result Http.Error Report.Report)
     | ClickedBodyVisibilityToggle
 
@@ -347,7 +349,7 @@ update msg model =
         ChangedBody body ->
             ( { model | body = body }, Cmd.none )
 
-        ClickedRunButton ->
+        RequestedProfile ->
             ( { model | report = Loading, bodyVisibility = Hidden }
             , Profile.run CompletedProfile
                 { verb = model.verb
