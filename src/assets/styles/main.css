@@ -33,3 +33,17 @@
 ::-moz-selection {
     background: #4a5568;
 }
+
+.spin {
+    @apply border-4;
+    @apply border-transparent;
+    @apply rounded-full;
+
+    animation: spin 0.75s linear infinite;
+    border-top-color: theme('colors.gray.700');
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

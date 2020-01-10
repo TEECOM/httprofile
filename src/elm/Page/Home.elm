@@ -85,8 +85,14 @@ view model =
                     ]
                     []
                 ]
-            , div [ class "py-2 text-right" ]
-                [ button
+            , div [ class "py-2 flex items-center justify-end" ]
+                [ case model.report of
+                    Loading ->
+                        div [ class "spin w-8 h-8 mr-4" ] []
+
+                    _ ->
+                        text ""
+                , button
                     [ class "font-semibold text-gray-400 bg-transparent rounded border-2 border-gray-400 py-2 px-4 hover:bg-gray-400 hover:text-gray-900 hover:border-transparent focus:outline-none focus:border-gray-700"
                     , type_ "submit"
                     ]
