@@ -129,6 +129,26 @@ mapToAbout model ( subModel, subCmd ) =
 
 
 
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    case model.page of
+        NotFound ->
+            Sub.none
+
+        Home home ->
+            Sub.map GotHomeMsg (Page.Home.subscriptions home)
+
+        Api api ->
+            Sub.map GotApiMsg (Page.Api.subscriptions api)
+
+        About about ->
+            Sub.map GotAboutMsg (Page.About.subscriptions about)
+
+
+
 -- MAIN
 
 
@@ -138,7 +158,7 @@ main =
         { init = init
         , view = view
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = subscriptions
         , onUrlRequest = ClickedLink
         , onUrlChange = ChangedUrl
         }

@@ -1,4 +1,4 @@
-module Page.Api exposing (Model, Msg, init, update, view)
+module Page.Api exposing (Model, Msg, init, subscriptions, update, view)
 
 import Browser
 import Html exposing (text)
@@ -43,3 +43,12 @@ type alias Msg =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update _ model =
     ( model, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions =
+    always Sub.none

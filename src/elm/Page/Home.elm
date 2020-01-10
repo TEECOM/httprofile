@@ -1,4 +1,4 @@
-module Page.Home exposing (Model, Msg, init, update, view)
+module Page.Home exposing (Model, Msg, init, subscriptions, update, view)
 
 import Browser
 import Duration
@@ -382,3 +382,12 @@ update msg model =
                             Visible
             in
             ( { model | bodyVisibility = toggled }, Cmd.none )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions =
+    always Sub.none
