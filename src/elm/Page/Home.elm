@@ -63,7 +63,7 @@ init =
 
 view : Model -> Browser.Document Msg
 view model =
-    { title = "HTTProfile"
+    { title = "HTTP Response Profiler"
     , body =
         [ form [ onSubmit RequestedProfile ]
             [ div [ class "flex items-center" ]

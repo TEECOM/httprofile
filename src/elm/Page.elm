@@ -13,7 +13,7 @@ import Route
 
 view : (a -> msg) -> Browser.Document a -> Browser.Document msg
 view toMsg { title, body } =
-    { title = title ++ " - HTTProfile"
+    { title = title ++ " · HTTProfile"
     , body =
         [ Html.map never viewHeader
         , viewMain toMsg body

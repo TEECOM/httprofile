@@ -23,7 +23,7 @@ init =
 
 view : Model -> Browser.Document Msg
 view _ =
-    { title = "Api"
+    { title = "API Documentation"
     , body = [ text "API" ]
     }
 
