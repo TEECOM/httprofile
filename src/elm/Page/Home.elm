@@ -1,6 +1,7 @@
 module Page.Home exposing (Model, Msg, init, subscriptions, update, view)
 
 import Browser
+import Browser.Events
 import Duration
 import Header exposing (Header)
 import Html exposing (Html, button, div, form, input, li, option, select, span, text, textarea, ul)
@@ -9,6 +10,7 @@ import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Http
 import Icon
 import Json.Decode as Decode
+import Keyboard
 import List.Extra exposing (mapOnly, positionedMap, removeAt)
 import Profile
 import Profile.Report as Report
@@ -389,5 +391,25 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions =
-    always Sub.none
+subscriptions _ =
+    Keyboard.decoder shortcuts
+        |> Browser.Events.onKeyPress
+
+
+shortcuts : Keyboard.Event -> Keyboard.Command Msg
+shortcuts event =
+    case event of
+        Keyboard.Event "INPUT" _ _ ->
+            Keyboard.Unrecognized
+
+        Keyboard.Event _ "Enter" [ Keyboard.Meta ] ->
+            Keyboard.Recognized RequestedProfile
+
+        Keyboard.Event "TEXTAREA" _ _ ->
+            Keyboard.Unrecognized
+
+        Keyboard.Event _ "b" _ ->
+            Keyboard.Recognized ClickedBodyVisibilityToggle
+
+        _ ->
+            Keyboard.Unrecognized
