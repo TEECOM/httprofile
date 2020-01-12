@@ -45,14 +45,27 @@ viewMain toMsg body =
 
 viewFooter : Html Never
 viewFooter =
-    footer [ class "flex items-center text-gray-600 w-64 px-6 mx-auto pt-12 py-4" ]
-        [ span [ class "mr-2" ] [ text "made with" ]
-        , Html.map never Icon.heart
-        , span [ class "ml-2" ] [ text "by" ]
-        , a
-            [ href "https://teecom.com"
-            , class "ml-1 border-b border-gray-800 hover:text-teecom-blue hover:border-teecom-blue"
-            , target "_blank"
+    footer []
+        [ div [ class "flex items-center text-gray-600 justify-center pt-12 py-2" ]
+            [ span [ class "mr-2" ] [ text "made with" ]
+            , Html.map never Icon.heart
+            , span [ class "ml-2" ] [ text "by" ]
+            , a
+                [ href "https://teecom.com"
+                , class "ml-1 border-b border-gray-800 hover:text-teecom-blue hover:border-teecom-blue"
+                , target "_blank"
+                ]
+                [ text "TEECOM" ]
             ]
-            [ text "TEECOM" ]
+        , div [ class "flex items-center text-gray-600 justify-center pb-4" ]
+            [ span [ class "ml-3 mr-2" ] [ text "inspired" ]
+            , Html.map never Icon.bulb
+            , span [ class "ml-3" ] [ text "by" ]
+            , a
+                [ href "https://github.com/reorx/httpstat"
+                , class "ml-1 border-b border-gray-800 hover:text-teecom-blue hover:border-teecom-blue"
+                , target "_blank"
+                ]
+                [ text "httpstat" ]
+            ]
         ]
