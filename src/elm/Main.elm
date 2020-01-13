@@ -2,6 +2,10 @@ module Main exposing (main)
 
 import Browser
 import Browser.Navigation as Nav
+import Html exposing (Html, button, div, h3, kbd, li, span, text, ul)
+import Html.Attributes exposing (class, classList)
+import Html.Events exposing (onClick)
+import Icon
 import Page
 import Page.About
 import Page.Api
@@ -18,6 +22,7 @@ import Url
 type alias Model =
     { key : Nav.Key
     , page : Page
+    , showingKeyboardShortcutInfo : Bool
     }
 
 
@@ -31,7 +36,10 @@ type Page
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init _ url key =
     changeToPage (Route.fromUrl url)
-        { key = key, page = NotFound }
+        { key = key
+        , page = NotFound
+        , showingKeyboardShortcutInfo = False
+        }
 
 
 
@@ -40,7 +48,18 @@ init _ url key =
 
 view : Model -> Browser.Document Msg
 view model =
-    case model.page of
+    let
+        { title, body } =
+            viewPage model.page
+    in
+    { title = title
+    , body = body ++ [ viewKeyboardShortcutInfo model.showingKeyboardShortcutInfo ]
+    }
+
+
+viewPage : Page -> Browser.Document Msg
+viewPage page =
+    case page of
         NotFound ->
             Page.view never Page.NotFound.view
 
@@ -54,6 +73,44 @@ view model =
             Page.view GotAboutMsg (Page.About.view about)
 
 
+viewKeyboardShortcutInfo : Bool -> Html Msg
+viewKeyboardShortcutInfo showingKeyboardShortcutInfo =
+    div [ class "fixed bottom-0 left-0 ml-6 mb-4" ]
+        [ div
+            [ class "transition-ease w-84 bg-gray-500 rounded ml-3 mb-3 text-gray-900 py-3 px-4"
+            , classList
+                [ ( "opacity-100 transform-shift-up", showingKeyboardShortcutInfo )
+                , ( "opacity-0 invisible", not showingKeyboardShortcutInfo )
+                ]
+            ]
+            [ h3 [ class "font-bold mb-3" ] [ text "Keyboard Shortcuts" ]
+            , ul []
+                [ li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "Run profile" ]
+                    , span []
+                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
+                            [ text "Cmd" ]
+                        , span [] [ text "+" ]
+                        , kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ] [ text "Enter" ]
+                        ]
+                    ]
+                , li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "Show / hide body" ]
+                    , span []
+                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
+                            [ text "b" ]
+                        ]
+                    ]
+                ]
+            ]
+        , button
+            [ class "text-gray-600 hover:text-gray-500 hover:bg-gray-800 p-3 rounded-full"
+            , onClick ToggledKeyboardShortcutInfo
+            ]
+            [ Html.map never Icon.keyboard ]
+        ]
+
+
 
 -- MESSAGE
 
@@ -61,6 +118,7 @@ view model =
 type Msg
     = ClickedLink Browser.UrlRequest
     | ChangedUrl Url.Url
+    | ToggledKeyboardShortcutInfo
     | GotHomeMsg Page.Home.Msg
     | GotApiMsg Page.Api.Msg
     | GotAboutMsg Page.About.Msg
@@ -83,6 +141,11 @@ update msg model =
 
         ( ChangedUrl url, _ ) ->
             changeToPage (Route.fromUrl url) model
+
+        ( ToggledKeyboardShortcutInfo, _ ) ->
+            ( { model | showingKeyboardShortcutInfo = not model.showingKeyboardShortcutInfo }
+            , Cmd.none
+            )
 
         ( GotHomeMsg subMsg, Home home ) ->
             Page.Home.update subMsg home |> mapToHome model
