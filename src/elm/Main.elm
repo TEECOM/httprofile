@@ -75,7 +75,7 @@ viewPage page =
 
 viewKeyboardShortcutInfo : Bool -> Html Msg
 viewKeyboardShortcutInfo showingKeyboardShortcutInfo =
-    div [ class "fixed bottom-0 left-0 ml-6 mb-4" ]
+    div [ class "fixed bottom-0 left-0 ml-6 mb-4 invisible sm:visible" ]
         [ div
             [ class "transition-ease w-84 bg-gray-500 rounded ml-3 mb-3 text-gray-900 py-3 px-4"
             , classList
