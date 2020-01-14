@@ -30,7 +30,7 @@ module.exports = () => ({
   ],
 
   devServer: {
-    contentBase: './src',
+    contentBase: './src/frontend',
     historyApiFallback: true,
     inline: true,
     stats: 'errors-only',

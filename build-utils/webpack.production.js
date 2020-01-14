@@ -65,7 +65,7 @@ module.exports = () => ({
     // }),
 
     new CopyWebpackPlugin([
-      { from: 'src/assets/images', to: 'assets/images' },
+      { from: 'src/frontend/assets/images', to: 'assets/images' },
     ]),
 
     new ImageminPlugin({

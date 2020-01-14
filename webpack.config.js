@@ -12,15 +12,15 @@ module.exports = ({ mode, presets } = { mode: "production", presets: [] }) => {
   return webpackMerge(
     {
       mode,
-      entry: path.join(__dirname, './src/index.js'),
+      entry: path.join(__dirname, './src/frontend/index.js'),
       plugins: [
         new HtmlWebpackPlugin({
-          template: 'src/assets/index.html',
+          template: 'src/frontend/assets/index.html',
           inject: 'body',
           filename: 'index.html',
         }),
         new CopyWebpackPlugin([
-          { from: 'src/assets/favicon.png' }
+          { from: 'src/frontend/assets/favicon.png' }
         ]),
       ]
     },
