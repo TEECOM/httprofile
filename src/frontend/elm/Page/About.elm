@@ -2,7 +2,7 @@ module Page.About exposing (Model, Msg, init, subscriptions, update, view)
 
 import Browser
 import Html exposing (Html, a, div, p, text)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (class, href, target)
 import Route
 
 
@@ -57,7 +57,7 @@ view _ =
 
 viewLink : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 viewLink attributes =
-    a (class "font-bold border-b border-1 text-gray-300 hover:text-gray-100" :: attributes)
+    a ([ target "_blank", class "font-bold border-b border-1 text-gray-300 hover:text-gray-100" ] ++ attributes)
 
 
 
