@@ -12,3 +12,8 @@ design icon set, [Zondicons](https://www.zondicons.com), and visually inspired
 by Derrick Reimer's [StaticKit](https://statickit.com). The backing API was
 written in [Go](https://golang.org), guided by Dave Cheney's implementation of
 [httpstat](https://github.com/davecheney/httpstat).
+
+This project adheres to the Contributor Covenant
+[code of conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to
+uphold this code. Please report unacceptable behavior to
+tommy.schaefer@teecom.com.
