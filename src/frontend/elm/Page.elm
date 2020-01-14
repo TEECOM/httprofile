@@ -57,7 +57,7 @@ viewFooter =
                 ]
                 [ text "TEECOM" ]
             ]
-        , div [ class "flex items-center text-gray-600 justify-center pb-4" ]
+        , div [ class "flex items-center text-gray-600 justify-center pb-8" ]
             [ span [ class "ml-3 mr-2" ] [ text "inspired" ]
             , Html.map never Icon.bolt
             , span [ class "ml-3" ] [ text "by" ]

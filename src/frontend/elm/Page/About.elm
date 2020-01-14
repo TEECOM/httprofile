@@ -27,7 +27,7 @@ view : Model -> Browser.Document Msg
 view _ =
     { title = "About"
     , body =
-        [ div [ class "text-lg leading-relaxed" ]
+        [ div [ class "text-lg leading-relaxed mb-12" ]
             [ p [ class "" ]
                 [ text "HTTProfile is a side project of TEECOM's research and development group, "
                 , viewLink [ href "https://labs.teecom.com" ] [ text "TEECOMlabs" ]

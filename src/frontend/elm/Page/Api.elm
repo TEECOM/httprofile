@@ -27,7 +27,7 @@ view : Model -> Browser.Document Msg
 view _ =
     { title = "API Documentation"
     , body =
-        [ div [ class "text-lg leading-relaxed" ]
+        [ div [ class "text-lg leading-relaxed mb-12" ]
             [ div []
                 [ p [] [ text "The HTTProfile API has a single endpoint for profiling HTTP endpoints." ]
                 , div [ class "mt-8" ]
