@@ -11,7 +11,7 @@ import Url.Parser
 suite : Test
 suite =
     describe "The Route module"
-        [ parser, href, fromUrl ]
+        [ parser, href, toString, fromUrl ]
 
 
 parser : Test
@@ -55,6 +55,24 @@ href =
             \() ->
                 Route.href Route.About
                     |> Expect.equal (Html.Attributes.href "/about")
+        ]
+
+
+toString : Test
+toString =
+    describe "Route.toString"
+        [ test "can turn the Home route into a string" <|
+            \() ->
+                Route.toString Route.Home
+                    |> Expect.equal "/"
+        , test "can turn the Api route into a string" <|
+            \() ->
+                Route.toString Route.Api
+                    |> Expect.equal "/api"
+        , test "can turn the About route into a string" <|
+            \() ->
+                Route.toString Route.About
+                    |> Expect.equal "/about"
         ]
 
 

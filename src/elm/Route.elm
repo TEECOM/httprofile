@@ -1,4 +1,4 @@
-module Route exposing (Route(..), fromUrl, href, parser)
+module Route exposing (Route(..), fromUrl, href, parser, toString)
 
 import Html
 import Html.Attributes

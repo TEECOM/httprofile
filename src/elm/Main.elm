@@ -13,7 +13,9 @@ import Page.About
 import Page.Api
 import Page.Home
 import Page.NotFound
+import Process
 import Route
+import Task
 import Url
 
 
@@ -25,6 +27,7 @@ type alias Model =
     { key : Nav.Key
     , page : Page
     , showingKeyboardShortcutInfo : Bool
+    , goingSomewhere : Bool
     }
 
 
@@ -41,6 +44,7 @@ init _ url key =
         { key = key
         , page = NotFound
         , showingKeyboardShortcutInfo = False
+        , goingSomewhere = False
         }
 
 
@@ -85,30 +89,35 @@ viewKeyboardShortcutInfo showingKeyboardShortcutInfo =
                 , ( "opacity-0 invisible", not showingKeyboardShortcutInfo )
                 ]
             ]
-            [ h3 [ class "font-bold mb-3" ] [ text "Keyboard Shortcuts" ]
+            [ h3 [ class "font-bold py-2 mb-1" ] [ text "Keyboard Shortcuts" ]
             , ul []
                 [ li [ class "flex justify-between py-2" ]
                     [ span [] [ text "View shortcuts" ]
-                    , span []
-                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
-                            [ text "?" ]
-                        ]
+                    , span [] [ viewKey "?" ]
+                    ]
+                , li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "Go to profiler" ]
+                    , span [] [ viewKey "g", viewKey "p" ]
+                    ]
+                , li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "Go to API" ]
+                    , span [] [ viewKey "g", viewKey "a" ]
+                    ]
+                , li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "Go to about" ]
+                    , span [] [ viewKey "g", viewKey "i" ]
                     ]
                 , li [ class "flex justify-between py-2" ]
                     [ span [] [ text "Run profile" ]
                     , span []
-                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
-                            [ text "Cmd" ]
+                        [ viewKey "Cmd"
                         , span [] [ text "+" ]
-                        , kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ] [ text "Enter" ]
+                        , viewKey "Enter"
                         ]
                     ]
                 , li [ class "flex justify-between py-2" ]
                     [ span [] [ text "Show / hide body" ]
-                    , span []
-                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
-                            [ text "b" ]
-                        ]
+                    , span [] [ viewKey "b" ]
                     ]
                 ]
             ]
@@ -120,6 +129,11 @@ viewKeyboardShortcutInfo showingKeyboardShortcutInfo =
         ]
 
 
+viewKey : String -> Html msg
+viewKey key =
+    kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ] [ text key ]
+
+
 
 -- MESSAGE
 
@@ -128,6 +142,9 @@ type Msg
     = ClickedLink Browser.UrlRequest
     | ChangedUrl Url.Url
     | ToggledKeyboardShortcutInfo
+    | BeganGoToCommand
+    | WaitedForGoToCommand
+    | FinishedGoToCommand Route.Route
     | GotHomeMsg Page.Home.Msg
     | GotApiMsg Page.Api.Msg
     | GotAboutMsg Page.About.Msg
@@ -154,6 +171,21 @@ update msg model =
         ( ToggledKeyboardShortcutInfo, _ ) ->
             ( { model | showingKeyboardShortcutInfo = not model.showingKeyboardShortcutInfo }
             , Cmd.none
+            )
+
+        ( BeganGoToCommand, _ ) ->
+            ( { model | goingSomewhere = True }
+            , delay 500 WaitedForGoToCommand
+            )
+
+        ( WaitedForGoToCommand, _ ) ->
+            ( { model | goingSomewhere = False }
+            , Cmd.none
+            )
+
+        ( FinishedGoToCommand route, _ ) ->
+            ( { model | goingSomewhere = False }
+            , Nav.pushUrl model.key (Route.toString route)
             )
 
         ( GotHomeMsg subMsg, Home home ) ->
@@ -200,6 +232,12 @@ mapToAbout model ( subModel, subCmd ) =
     ( { model | page = About subModel }, Cmd.map GotAboutMsg subCmd )
 
 
+delay : Float -> msg -> Cmd msg
+delay time msg =
+    Process.sleep time
+        |> Task.perform (always msg)
+
+
 
 -- SUBSCRIPTIONS
 
@@ -208,7 +246,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ pageSubscriptions model.page
-        , Keyboard.decoder shortcuts |> Browser.Events.onKeyPress
+        , shortcuts model.goingSomewhere |> Keyboard.decoder |> Browser.Events.onKeyPress
         ]
 
 
@@ -228,17 +266,29 @@ pageSubscriptions page =
             Sub.map GotAboutMsg (Page.About.subscriptions about)
 
 
-shortcuts : Keyboard.Event -> Keyboard.Command Msg
-shortcuts event =
-    case event of
-        Keyboard.Event "INPUT" _ _ ->
+shortcuts : Bool -> Keyboard.Event -> Keyboard.Command Msg
+shortcuts goingSomewhere event =
+    case ( goingSomewhere, event ) of
+        ( _, Keyboard.Event "INPUT" _ _ ) ->
             Keyboard.Unrecognized
 
-        Keyboard.Event "TEXTAREA" _ _ ->
+        ( _, Keyboard.Event "TEXTAREA" _ _ ) ->
             Keyboard.Unrecognized
 
-        Keyboard.Event _ "?" _ ->
+        ( _, Keyboard.Event _ "?" _ ) ->
             Keyboard.Recognized ToggledKeyboardShortcutInfo
+
+        ( _, Keyboard.Event _ "g" _ ) ->
+            Keyboard.Recognized BeganGoToCommand
+
+        ( True, Keyboard.Event _ "p" _ ) ->
+            Keyboard.Recognized (FinishedGoToCommand Route.Home)
+
+        ( True, Keyboard.Event _ "a" _ ) ->
+            Keyboard.Recognized (FinishedGoToCommand Route.Api)
+
+        ( True, Keyboard.Event _ "i" _ ) ->
+            Keyboard.Recognized (FinishedGoToCommand Route.About)
 
         _ ->
             Keyboard.Unrecognized
