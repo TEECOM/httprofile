@@ -17,3 +17,82 @@ This project adheres to the Contributor Covenant
 [code of conduct](./CODE_OF_CONDUCT.md). By participating, you are expected to
 uphold this code. Please report unacceptable behavior to
 tommy.schaefer@teecom.com.
+
+## Frontend
+
+#### Dependencies
+
+The frontend codebase is written in [Elm](https://elm-lang.org), and depends on
+a handful of JavaScript libraries. These libraries are managed by
+[yarn](https://yarnpkg.com/en/docs/install#mac-stable), and can be installed
+by running the following from the project's root directory:
+
+```
+yarn install
+```
+
+There are some additional Elm packages you'll want to load too:
+
+```
+npx elm install
+```
+
+#### Running locally
+
+To run the frontend locally, run the following from the project's root
+directory:
+
+```
+yarn dev
+```
+
+This will start an auto-reloading server for the Elm frontend.
+
+#### Testing
+
+You can run tests by executing the following from the project's root directory:
+
+```
+yarn test
+```
+
+## Backend
+
+The backend codebase is written in [Go](https://golang.org), and uses Go
+modules. To run the backend locally, run the following from the root project
+directory:
+
+```
+go run httprofile/src/backend
+```
+
+This will start up an API server on port `8080`. To run the server on a
+different port, run:
+
+```
+PORT={custom port} go run httprofle/src/backend
+```
+
+instead.
+
+For more information on the API endpoints, check out the
+[API documentation](https://httprofile.io/api).
+
+## Contributing
+
+For information on how to contribute to this project, check out the
+[contributing guidelines](./CONTRIBUTING.md).
+
+## Deployment
+
+HTTProfile is deployed automatically when code is merged into the `production`
+branch. Frontend code is deployed to Netlify, while backend code is deployed
+to Heroku.
+
+## Questions?
+
+If you have any questions about HTTProfile, or if any of the documentation is
+unclear, please feel free to reach out through a
+[new issue](https://github.com/TEECOM/httprofile/issues/new?labels=documentation%20:writing_hand:).
+
+:smiley_cat:
