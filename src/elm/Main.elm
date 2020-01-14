@@ -1,11 +1,13 @@
 module Main exposing (main)
 
 import Browser
+import Browser.Events
 import Browser.Navigation as Nav
 import Html exposing (Html, button, div, h3, kbd, li, span, text, ul)
 import Html.Attributes exposing (class, classList)
 import Html.Events exposing (onClick)
 import Icon
+import Keyboard
 import Page
 import Page.About
 import Page.Api
@@ -86,6 +88,13 @@ viewKeyboardShortcutInfo showingKeyboardShortcutInfo =
             [ h3 [ class "font-bold mb-3" ] [ text "Keyboard Shortcuts" ]
             , ul []
                 [ li [ class "flex justify-between py-2" ]
+                    [ span [] [ text "View shortcuts" ]
+                    , span []
+                        [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
+                            [ text "?" ]
+                        ]
+                    ]
+                , li [ class "flex justify-between py-2" ]
                     [ span [] [ text "Run profile" ]
                     , span []
                         [ kbd [ class "py-1 px-2 bg-gray-800 text-gray-100 rounded mx-1" ]
@@ -197,7 +206,15 @@ mapToAbout model ( subModel, subCmd ) =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case model.page of
+    Sub.batch
+        [ pageSubscriptions model.page
+        , Keyboard.decoder shortcuts |> Browser.Events.onKeyPress
+        ]
+
+
+pageSubscriptions : Page -> Sub Msg
+pageSubscriptions page =
+    case page of
         NotFound ->
             Sub.none
 
@@ -209,6 +226,22 @@ subscriptions model =
 
         About about ->
             Sub.map GotAboutMsg (Page.About.subscriptions about)
+
+
+shortcuts : Keyboard.Event -> Keyboard.Command Msg
+shortcuts event =
+    case event of
+        Keyboard.Event "INPUT" _ _ ->
+            Keyboard.Unrecognized
+
+        Keyboard.Event "TEXTAREA" _ _ ->
+            Keyboard.Unrecognized
+
+        Keyboard.Event _ "?" _ ->
+            Keyboard.Recognized ToggledKeyboardShortcutInfo
+
+        _ ->
+            Keyboard.Unrecognized
 
 
 
