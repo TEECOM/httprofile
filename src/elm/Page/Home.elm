@@ -1,4 +1,4 @@
-module Page.Home exposing (Model, Msg, init, subscriptions, update, view)
+port module Page.Home exposing (Model, Msg, init, subscriptions, update, view)
 
 import Browser
 import Browser.Events
@@ -16,6 +16,13 @@ import Profile
 import Profile.Report as Report
 import Status
 import Verb
+
+
+
+-- PORTS
+
+
+port blurActive : () -> Cmd msg
 
 
 
@@ -360,12 +367,15 @@ update msg model =
 
         RequestedProfile ->
             ( { model | report = Loading, bodyVisibility = Hidden }
-            , Profile.run CompletedProfile
-                { verb = model.verb
-                , url = model.url
-                , headers = List.filter (not << Header.isEmpty) model.headers
-                , body = model.body
-                }
+            , Cmd.batch
+                [ blurActive ()
+                , Profile.run CompletedProfile
+                    { verb = model.verb
+                    , url = model.url
+                    , headers = List.filter (not << Header.isEmpty) model.headers
+                    , body = model.body
+                    }
+                ]
             )
 
         CompletedProfile (Err error) ->
