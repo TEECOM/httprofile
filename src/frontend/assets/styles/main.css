@@ -55,3 +55,20 @@
 .transform-shift-up {
     transform: translateY(-5px);
 }
+
+.elmsh {
+    @apply text-gray-100;
+    @apply text-base;
+}
+
+.elmsh1 {
+    @apply text-green-300;
+}
+
+.elmsh2 {
+    @apply text-green-500;
+}
+
+.elmsh4 {
+    @apply text-blue-500;
+}
