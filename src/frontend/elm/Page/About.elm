@@ -40,7 +40,7 @@ view _ =
                 , viewLink [ href "https://elm-lang.org" ] [ text "Elm" ]
                 , text ". It was styled with "
                 , viewLink [ href "https://tailwindcss.com" ] [ text "Tailwind" ]
-                , text ", complimented by Steve Schoger's beautifully design icon set, "
+                , text ", complimented by Steve Schoger's beautifully designed icon set, "
                 , viewLink [ href "https://www.zondicons.com" ] [ text "Zondicons" ]
                 , text ", and visually inspired by Derrick Reimer's "
                 , viewLink [ href "https://statickit.com" ] [ text "StaticKit" ]
