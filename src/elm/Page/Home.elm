@@ -5,7 +5,7 @@ import Browser.Events
 import Duration
 import Header exposing (Header)
 import Html exposing (Html, button, div, form, input, li, option, select, span, text, textarea, ul)
-import Html.Attributes exposing (class, placeholder, selected, type_, value)
+import Html.Attributes exposing (autofocus, class, placeholder, selected, type_, value)
 import Html.Events exposing (on, onClick, onInput, onSubmit)
 import Http
 import Icon
@@ -74,6 +74,7 @@ view model =
                     , class "bg-gray-800 rounded border-2 border-transparent ml-2 py-3 px-4 w-full appearance-none focus:outline-none focus:border-gray-700"
                     , onInput ChangedURL
                     , value model.url
+                    , autofocus True
                     ]
                     []
                 ]
