@@ -100,7 +100,7 @@ view _ =
 
 viewCodeExample : List (Html.Attribute msg) -> String -> Html msg
 viewCodeExample attributes exampleText =
-    div ([ class "mb-10 px-6 py-4 bg-gray-800 rounded" ] ++ attributes)
+    div ([ class "mb-10 px-6 py-4 bg-gray-800 rounded overflow-auto scroll-dark" ] ++ attributes)
         [ SyntaxHighlight.json exampleText
             |> Result.map (SyntaxHighlight.toBlockHtml Nothing)
             |> Result.withDefault (text "")
