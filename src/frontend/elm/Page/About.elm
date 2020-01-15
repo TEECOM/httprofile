@@ -50,6 +50,11 @@ view _ =
                 , viewLink [ href "https://github.com/davecheney/httpstat" ] [ text "httpstat" ]
                 , text "."
                 ]
+            , p [ class "mt-6" ]
+                [ text "HTTProfile is completely open-source, and can be found on "
+                , viewLink [ href "https://github.com/TEECOM/httprofile" ] [ text "GitHub" ]
+                , text "."
+                ]
             ]
         ]
     }
