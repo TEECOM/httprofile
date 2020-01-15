@@ -29,7 +29,7 @@ view _ =
     , body =
         [ div [ class "text-lg leading-relaxed mb-12" ]
             [ div []
-                [ p [] [ text "The HTTProfile API has a single endpoint for profiling HTTP endpoints." ]
+                [ p [] [ text "The HTTProfile API has a single endpoint for profiling HTTP servers." ]
                 , div [ class "mt-8" ]
                     [ div []
                         [ span [ class "bg-pink-600 text-gray-900 px-2 py-1 rounded font-bold text-base" ] [ text "POST" ]
