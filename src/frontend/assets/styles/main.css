@@ -5,25 +5,25 @@
 @tailwind utilities;
 
 .scroll-dark {
-    scrollbar-color: #718096 transparent;
+    scrollbar-color: theme('colors.gray.600') theme('colors.gray.700');
 }
 
 .scroll-dark::-webkit-scrollbar {
     width: 12px;
+    height: 12px;
 }
 
 .scroll-dark::-webkit-scrollbar-track {
-    background: transparent;
-    border-radius: 2px;
+    @apply bg-gray-700;
 }
 
 .scroll-dark::-webkit-scrollbar-thumb {
-    border-radius: 8px;
-    background: #718096;
+    @apply bg-gray-600;
+    @apply rounded-full;
 }
 
 .scroll-dark::-webkit-scrollbar-corner {
-    background: transparent;
+    @apply bg-gray-700;
 }
 
 ::selection {
