@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"httprofile/src/backend/log"
@@ -65,7 +66,20 @@ func (s *server) handleReport() http.HandlerFunc {
 			return
 		}
 
-		req, err := newRequest(profReq.Method, profReq.URL, profReq.Headers, profReq.Body)
+		url, err := parseURL(profReq.URL)
+		if err != nil {
+			s.error(
+				w,
+				r,
+				http.StatusBadRequest,
+				"InvalidURL",
+				"The included URL wasn't parseable.",
+				err,
+			)
+			return
+		}
+
+		req, err := newRequest(profReq.Method, url, profReq.Headers, profReq.Body)
 		if err != nil {
 			s.error(
 				w,
@@ -96,13 +110,33 @@ func (s *server) handleReport() http.HandlerFunc {
 	}
 }
 
-func newRequest(method string, url string, headers map[string]string, body string) (*http.Request, error) {
+func parseURL(uri string) (*url.URL, error) {
+	if !strings.Contains(uri, "://") && !strings.HasPrefix(uri, "//") {
+		uri = "//" + uri
+	}
+
+	url, err := url.Parse(uri)
+	if err != nil {
+		return nil, err
+	}
+
+	if url.Scheme == "" {
+		url.Scheme = "https"
+		if strings.HasSuffix(url.Host, ":80") {
+			url.Scheme = "http"
+		}
+	}
+
+	return url, nil
+}
+
+func newRequest(method string, url *url.URL, headers map[string]string, body string) (*http.Request, error) {
 	header := http.Header{}
 	for k, v := range headers {
 		header.Set(k, v)
 	}
 
-	req, err := http.NewRequest(method, url, strings.NewReader(body))
+	req, err := http.NewRequest(method, url.String(), strings.NewReader(body))
 	if err != nil {
 		return nil, err
 	}
